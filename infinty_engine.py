@@ -36,7 +36,7 @@ with st.sidebar:
     st.info("Supporting Haitian Machine Learning & New Inventions.")
     with st.expander("💳 DONATE TO GESNER DESLANDES", expanded=True):
         st.markdown('<div class="support-card">', unsafe_allow_html=True)
-        # Display QR Code
+         # Display QR Code
         qr_img = generate_moncash_qr("(509)-47385663")
         st.image(qr_img, caption="Scan to Support Research", use_container_width=True)
         st.markdown(f"""
@@ -44,12 +44,12 @@ with st.sidebar:
             <p style="color: #FF4500; font-size: 1.2em; font-weight: bold;">(509)-47385663</p>
             <p style="font-size: 0.85em;"><i>Prisme Transfer / Global Support</i></p>
             """, unsafe_allow_html=True)
-         # Updated Email Notification Button
+        # Updated Email Notification Button
         email_recipient = "deslandes78@gmail.com"
         email_subject = "Support for Infinty Engine Machine Learning"
         email_body = "Hello Gesner, I am supporting your Haitian Scientific Community initiatives with a MonCash payment."
         mail_to_link = f"mailto:{email_recipient}?subject={email_subject.replace(' ', '%20')}&body={email_body.replace(' ', '%20')}"
-         st.markdown(f'''
+        st.markdown(f'''
             <a href="{mail_to_link}" target="_blank">
                 <button style="width:100%; background-color:#1E90FF; color:white; border:none; padding:10px; border-radius:5px; cursor:pointer; font-weight:bold;">
                     📧 Send Payment Notification
@@ -81,7 +81,7 @@ st.write(f"**Principal Investigator:** Gesner Deslandes | **Lead, Haitian Scient
 location = get_geolocation()
 if location and 'coords' in location:
     lat, lon = location['coords']['latitude'], location['coords']['longitude']
-     col1, col2 = st.columns([1, 1])
+    col1, col2 = st.columns([1, 1])
     with col1:
         st.markdown("### 🔍 Field Data Acquisition")
         notes = st.text_area("Input site characteristics for ML Analysis:").lower()
@@ -109,3 +109,4 @@ if location and 'coords' in location:
     st.info("🌍 Awaiting Satellite Lock... Please allow GPS access to begin research.")
 st.write("---")
 st.caption("© 2026 Gesner Deslandes. Advancing Machine Learning & Scientific Inventions in Haiti.")
+
