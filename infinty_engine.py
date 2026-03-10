@@ -5,8 +5,10 @@ import time
 import qrcode
 from io import BytesIO
 from streamlit_js_eval import get_geolocation
+
 # --- 1. SYSTEM CONFIGURATION ---
 st.set_page_config(page_title="Gesner Deslandes Infinty", page_icon="🌍", layout="wide")
+
 st.markdown("""
     <style>
     .main-header { text-align: center; color: #1E90FF; font-family: 'Helvetica', sans-serif; }
@@ -30,6 +32,7 @@ st.markdown("""
     .stButton>button { width: 100%; border-radius: 10px; height: 3.5em; font-weight: bold; }
     </style>
     """, unsafe_allow_html=True)
+
 # --- 2. QR CODE UTILITY ---
 def generate_moncash_qr(phone):
     qr = qrcode.QRCode(version=1, box_size=10, border=2)
@@ -39,6 +42,7 @@ def generate_moncash_qr(phone):
     buf = BytesIO()
     img.save(buf)
     return buf.getvalue()
+
 # --- 3. SIDEBAR: GLOBAL SUPPORT GATEWAY ---
 with st.sidebar:
     st.markdown("### 🏛️ GLOBAL RESEARCH FUND")
@@ -64,6 +68,7 @@ with st.sidebar:
             </a>
             ''', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
+
 # --- 4. MACHINE LEARNING LOGIC MATRIX ---
 resource_logic = {
     "Gold (Au)": {
@@ -84,7 +89,6 @@ resource_logic = {
 }
 
 # --- 5. MAIN INTERFACE ---
-# Logo Branding
 st.markdown(f"""
     <div class="logo-box">
         <h2 style="color: #1E90FF; margin-bottom: 5px;">GESNER DESLANDES</h2>
@@ -93,8 +97,11 @@ st.markdown(f"""
         <p style="color: #555; font-size: 1.0em; margin-top: 0;">Machine Learning & Geological Intelligence Engine v1.5</p>
     </div>
     """, unsafe_allow_html=True)
+
 st.write(f"**Principal Investigator:** Gesner Deslandes | **Lead Researcher**")
+
 location = get_geolocation()
+
 if location and 'coords' in location:
     lat, lon = location['coords']['latitude'], location['coords']['longitude']
     col1, col2 = st.columns([1, 1])
@@ -102,7 +109,7 @@ if location and 'coords' in location:
         st.markdown("### 🔍 Field Data Acquisition")
         notes = st.text_area("Describe site characteristics (e.g., 'Soil is yellow with quartz veins'):").lower()
         st.info(f"📍 GPS SIGNAL LOCKED: {lat}, {lon}")
-        with col2:
+    with col2:
         st.markdown("### 🧠 Invention-ML Inference")
         if st.button("EXECUTE MACHINE LEARNING SCAN"):
             if not notes:
@@ -110,7 +117,7 @@ if location and 'coords' in location:
             else:
                 with st.spinner("Processing Spectral Data & Geological Probability..."):
                     time.sleep(2)
-         matches = [name for name, info in resource_logic.items() if any(i in notes for i in info["indicators"])]
+                matches = [name for name, info in resource_logic.items() if any(i in notes for i in info["indicators"])]
                 if matches:
                     st.success(f"ML Prediction: {len(matches)} resource indicators identified.")
                     for match in matches:
@@ -118,7 +125,7 @@ if location and 'coords' in location:
                             st.write(f"**Evidence:** {resource_logic[match]['science']}")
                             st.write(f"**Confidence Score:** {int(resource_logic[match]['confidence']*100)}%")
                             st.progress(resource_logic[match]['confidence'])
-                     csv_data = pd.DataFrame([{"Investigator": "Gesner Deslandes", "Resource": m, "Lat": lat, "Lon": lon} for m in matches])
+                    csv_data = pd.DataFrame([{"Investigator": "Gesner Deslandes", "Resource": m, "Lat": lat, "Lon": lon} for m in matches])
                     st.download_button("📥 DOWNLOAD RESEARCH DOSSIER", csv_data.to_csv(index=False).encode('utf-8'), "Infinty_ML_Report.csv")
                 else:
                     st.error("Inference Engine: No significant mineral indicators detected in current sample.")
