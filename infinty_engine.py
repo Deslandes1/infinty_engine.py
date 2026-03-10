@@ -100,5 +100,5 @@ st.markdown(f"""
     </div>
     """, unsafe_allow_html=True)
 st.write("---")
-
 st.caption("Developed by GESNER DESLANDES | Founder of EduHumanity 2026")
+
