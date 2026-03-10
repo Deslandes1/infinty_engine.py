@@ -148,3 +148,4 @@ with tab3:
 st.write("---")
 st.latex(r"P_m = \sum (w_i \cdot x_i) \cdot \delta_{GPS}")
 st.caption("© 2026 Gesner Deslandes | National Discovery & Validation Protocol 🇭🇹")
+
