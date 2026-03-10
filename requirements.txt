@@ -1,5 +1,9 @@
+streamlit
+
+streamlit-js-eval
+
+pandas
+
 qrcode
 
 Pillow
-
-streamlit-js-eval
