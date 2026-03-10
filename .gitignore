@@ -1,0 +1,14 @@
+# Ignore local VS Code settings
+.vscode/
+
+# Ignore Python "junk" files that are created when you run code
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ignore your local virtual environment (if you use one)
+venv/
+env/
+
+# Ignore the streamlit folder
+.streamlit/
