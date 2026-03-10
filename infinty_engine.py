@@ -4,7 +4,7 @@ import pandas as pd
 import time
 from streamlit_js_eval import get_geolocation
 # --- 1. CONFIGURATION & BRANDING ---
-st.set_page_config(page_title="Gesner Deslandes Infinity", page_icon="🌍", layout="wide")
+st.set_page_config(page_title="Gesner Deslandes Infinty", page_icon="🌍", layout="wide")
 st.markdown("""
     <style>
     .stButton>button { width: 100%; border-radius: 10px; height: 3.5em; background-color: #1E90FF; color: white; font-weight: bold; }
@@ -100,4 +100,5 @@ st.markdown(f"""
     </div>
     """, unsafe_allow_html=True)
 st.write("---")
+
 st.caption("Developed by GESNER DESLANDES | Founder of EduHumanity 2026")
