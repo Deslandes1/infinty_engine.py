@@ -188,5 +188,3 @@ else:
         **Contact:** {ADMIN_EMAIL}
         
         *By using this system, you agree that the **{MASTER_KEY}** key is for 24-hour leasing only. 
-        All data discovery remains the intellectual property of the Inventor.*
-        """)
