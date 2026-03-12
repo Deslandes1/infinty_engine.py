@@ -1,5 +1,3 @@
 streamlit
+pandas
 pillow
-qrcode
-uuid
-fpdf2
