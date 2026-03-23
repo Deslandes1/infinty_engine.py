@@ -32,7 +32,7 @@ if 'captured_image' not in st.session_state:
 if 'camera_method' not in st.session_state:
     st.session_state.camera_method = 'camera'
 
-# --- TRANSLATIONS (full, but for brevity only English is shown here; include your full translations in actual code) ---
+# --- TRANSLATIONS (full, but for brevity only English shown; include your full translations) ---
 TRANSLATIONS = {
     'en': {
         'app_title': 'INFINITY ENGINE v33.0',
@@ -98,7 +98,7 @@ TRANSLATIONS = {
         'unknown_mineral': 'Unknown Mineral',
         'unclassified': 'Unclassified'
     },
-    # Add French, Spanish, Haitian Creole translations as before (keep them in your actual code)
+    # Include French, Spanish, Haitian Creole translations as before.
 }
 
 def get_text(key, lang=None, **kwargs):
@@ -118,7 +118,7 @@ def analyze_resource(text):
                 return m, category
     return "Unknown Mineral", "Unclassified"
 
-# --- CUSTOM CAMERA WIDGET WITH REVERSE BUTTON (WORKING) ---
+# --- CUSTOM CAMERA WIDGET WITH REVERSE BUTTON ---
 def custom_camera_widget():
     """Embed a camera with a visible Reverse Camera button."""
     widget_id = f"cam_{uuid.uuid4().hex[:8]}"
