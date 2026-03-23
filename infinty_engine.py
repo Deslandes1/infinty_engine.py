@@ -36,7 +36,7 @@ if 'captured_image' not in st.session_state:
 if 'camera_method' not in st.session_state:
     st.session_state.camera_method = 'camera'
 
-# --- TRANSLATIONS (full, but for brevity only English and French shown; add other languages as needed) ---
+# --- TRANSLATIONS (English and French; add other languages as needed) ---
 TRANSLATIONS = {
     'en': {
         'app_title': 'INFINITY ENGINE v33.0',
@@ -166,7 +166,7 @@ TRANSLATIONS = {
         'unknown_mineral': 'Minéral Inconnu',
         'unclassified': 'Non Classifié'
     }
-    # Add Spanish and Haitian Creole as needed
+    # Add Spanish and Haitian Creole translations here if desired
 }
 
 def get_text(key, lang=None, **kwargs):
@@ -239,34 +239,12 @@ with col2:
         st.session_state.language = selected_lang
         st.rerun()
 
-# --- Haitian Flag with detailed coat of arms (clearly visible) ---
+# Simple Haitian flag (blue and red bands only)
 st.markdown("""
 <div style="display: flex; justify-content: center; margin: 20px 0;">
-    <svg width="400" height="240" viewBox="0 0 1200 720" xmlns="http://www.w3.org/2000/svg">
-        <!-- Blue top half -->
-        <rect width="1200" height="360" fill="#00209F" />
-        <!-- Red bottom half -->
-        <rect y="360" width="1200" height="360" fill="#D21034" />
-        <!-- Coat of arms (centered, enlarged) -->
-        <g transform="translate(600,360) scale(0.3)">
-            <!-- Palm tree trunk -->
-            <rect x="-40" y="-150" width="80" height="300" fill="#8B5A2B" stroke="#4A2C1A" stroke-width="3" />
-            <!-- Palm fronds -->
-            <polygon points="0,-150 -120,-80 -80,-70 0,-120 80,-70 120,-80 0,-150" fill="#2E7D32" stroke="#1B5E20" stroke-width="2" />
-            <!-- Liberty cap (red) -->
-            <polygon points="0,-180 -40,-130 0,-145 40,-130 0,-180" fill="#D32F2F" stroke="#B71C1C" stroke-width="2" />
-            <!-- Cannons -->
-            <rect x="-140" y="120" width="100" height="40" fill="#555" stroke="#333" stroke-width="2" />
-            <rect x="40" y="120" width="100" height="40" fill="#555" stroke="#333" stroke-width="2" />
-            <!-- Drums -->
-            <circle cx="-90" cy="145" r="25" fill="#A1887F" stroke="#6D4C41" stroke-width="2" />
-            <circle cx="90" cy="145" r="25" fill="#A1887F" stroke="#6D4C41" stroke-width="2" />
-            <!-- Additional palm leaves detail -->
-            <path d="M0,-150 L-50,-70 L-30,-80 L0,-110 L30,-80 L50,-70 L0,-150" fill="#1B5E20" />
-            <!-- Flag scroll with motto -->
-            <rect x="-180" y="170" width="360" height="30" fill="#F5F5DC" stroke="#C0A080" stroke-width="2" rx="5" />
-            <text x="-150" y="192" font-size="20" fill="#000000" font-family="Arial, sans-serif" font-weight="bold">L'Union Fait la Force</text>
-        </g>
+    <svg width="320" height="192" viewBox="0 0 960 576" xmlns="http://www.w3.org/2000/svg">
+        <rect width="960" height="288" fill="#00209F" />
+        <rect y="288" width="960" height="288" fill="#D21034" />
     </svg>
 </div>
 """, unsafe_allow_html=True)
