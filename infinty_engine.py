@@ -64,9 +64,10 @@ TRANSLATIONS = {
         'main_header': 'INFINITY ENGINE v33.0',
         'main_subheader': 'Universal Discovery & Humanity Advancement',
         'scan_subheader': '🔍 Universal Atomic Scan',
+        'camera_instruction': '📸 Point your camera at the soil sample and click the button below to capture.',
         'site_label': 'Site Name:',
         'site_placeholder': 'Grand Goâve',
-        'photo_label': 'Sample Analysis',
+        'photo_label': 'Sample Analysis (Camera)',
         'notes_label': 'Analysis Notes (Detected Clues):',
         'weight_label': 'Mass (kg):',
         'execute_button': '🚀 EXECUTE UNIVERSAL ANALYSIS',
@@ -83,7 +84,9 @@ TRANSLATIONS = {
         'download_button': '📊 Download Research History (CSV)',
         'no_data_info': 'No discoveries recorded yet. Perform a scan to generate data.',
         'access_warning': 'Please enter your Master Key in the sidebar to begin scanning.',
-        'language_selector': 'Language / Langue / Lang / Lang'
+        'language_selector': 'Language / Langue / Lang / Lang',
+        'unknown_mineral': 'Unknown Mineral',
+        'unclassified': 'Unclassified'
     },
     'fr': {
         'app_title': 'MOTEUR INFINI v33.0',
@@ -118,9 +121,10 @@ TRANSLATIONS = {
         'main_header': 'MOTEUR INFINI v33.0',
         'main_subheader': 'Découverte Universelle & Avancement Humain',
         'scan_subheader': '🔍 Analyse Atomique Universelle',
+        'camera_instruction': '📸 Pointez votre appareil vers l\'échantillon de sol et cliquez sur le bouton ci-dessous pour capturer.',
         'site_label': 'Nom du site:',
         'site_placeholder': 'Grand Goâve',
-        'photo_label': 'Analyse d\'échantillon',
+        'photo_label': 'Analyse d\'échantillon (Caméra)',
         'notes_label': 'Notes d\'analyse (indices détectés):',
         'weight_label': 'Masse (kg):',
         'execute_button': '🚀 EXÉCUTER L\'ANALYSE UNIVERSELLE',
@@ -137,7 +141,9 @@ TRANSLATIONS = {
         'download_button': '📊 Télécharger l\'historique de recherche (CSV)',
         'no_data_info': 'Aucune découverte enregistrée pour le moment. Effectuez une analyse pour générer des données.',
         'access_warning': 'Veuillez entrer votre clé principale dans la barre latérale pour commencer l\'analyse.',
-        'language_selector': 'Langue / Language'
+        'language_selector': 'Langue / Language',
+        'unknown_mineral': 'Minéral Inconnu',
+        'unclassified': 'Non Classifié'
     },
     'es': {
         'app_title': 'MOTOR INFINITO v33.0',
@@ -172,9 +178,10 @@ TRANSLATIONS = {
         'main_header': 'MOTOR INFINITO v33.0',
         'main_subheader': 'Descubrimiento Universal & Avance Humano',
         'scan_subheader': '🔍 Escaneo Atómico Universal',
+        'camera_instruction': '📸 Apunte su cámara a la muestra de suelo y haga clic en el botón de abajo para capturar.',
         'site_label': 'Nombre del sitio:',
         'site_placeholder': 'Grand Goâve',
-        'photo_label': 'Análisis de muestra',
+        'photo_label': 'Análisis de muestra (Cámara)',
         'notes_label': 'Notas de análisis (pistas detectadas):',
         'weight_label': 'Masa (kg):',
         'execute_button': '🚀 EJECUTAR ANÁLISIS UNIVERSAL',
@@ -191,7 +198,9 @@ TRANSLATIONS = {
         'download_button': '📊 Descargar historial de investigación (CSV)',
         'no_data_info': 'Aún no se han registrado descubrimientos. Realice un escaneo para generar datos.',
         'access_warning': 'Por favor ingrese su clave maestra en la barra lateral para comenzar el escaneo.',
-        'language_selector': 'Idioma / Language'
+        'language_selector': 'Idioma / Language',
+        'unknown_mineral': 'Mineral Desconocido',
+        'unclassified': 'No Clasificado'
     },
     'ht': {
         'app_title': 'MOTEUR ENFINI v33.0',
@@ -226,9 +235,10 @@ TRANSLATIONS = {
         'main_header': 'MOTEUR ENFINI v33.0',
         'main_subheader': 'Dekouvèt Inivèsèl & Avansman Imèn',
         'scan_subheader': '🔍 Analiz Atomik Inivèsèl',
+        'camera_instruction': '📸 Montre kamera ou sou echantiyon tè a epi klike sou bouton anba a pou pran foto.',
         'site_label': 'Non sit:',
         'site_placeholder': 'Grand Goâve',
-        'photo_label': 'Analiz echantiyon',
+        'photo_label': 'Analiz echantiyon (Kamera)',
         'notes_label': 'Nòt analiz (endis detekte):',
         'weight_label': 'Mas (kg):',
         'execute_button': '🚀 EKZEKITE ANALIZ INIVÈSÈL',
@@ -245,7 +255,9 @@ TRANSLATIONS = {
         'download_button': '📊 Telechaje istorik rechèch (CSV)',
         'no_data_info': 'Pa gen okenn dekouvèt anrejistre ankò. Fè yon eskanè pou jenere done.',
         'access_warning': 'Tanpri antre kle prensipal ou nan ba a pou kòmanse eskanè.',
-        'language_selector': 'Lang / Language'
+        'language_selector': 'Lang / Language',
+        'unknown_mineral': 'Mineral Enkoni',
+        'unclassified': 'Pa Klase'
     }
 }
 
@@ -344,8 +356,12 @@ st.markdown(f'<div class="main-header"><h1>{get_text("main_header")}</h1><p>{get
 if st.session_state.authenticated:
     # --- Section 1: Input ---
     st.subheader(get_text('scan_subheader'))
-    site = st.text_input(get_text('site_label'), get_text('site_placeholder'))
+    
+    # Camera input with instructions
+    st.markdown(f"<p style='font-size:0.9rem; color:#555;'>{get_text('camera_instruction')}</p>", unsafe_allow_html=True)
     photo = st.camera_input(get_text('photo_label'))
+    
+    site = st.text_input(get_text('site_label'), get_text('site_placeholder'))
     notes = st.text_area(get_text('notes_label'))
     weight = st.number_input(get_text('weight_label'), value=1.0)
     
@@ -370,8 +386,8 @@ if st.session_state.authenticated:
             })
             
             # Build translated report
-            resource_display = res_name.upper() if res_name != "Unknown Mineral" else get_text('unknown_mineral', lang=st.session_state.language)
-            category_display = res_cat.upper() if res_cat != "Unclassified" else get_text('unclassified', lang=st.session_state.language)
+            resource_display = res_name.upper() if res_name != "Unknown Mineral" else get_text('unknown_mineral')
+            category_display = res_cat.upper() if res_cat != "Unclassified" else get_text('unclassified')
             
             report_html = f"""
             <div class="report-card">
