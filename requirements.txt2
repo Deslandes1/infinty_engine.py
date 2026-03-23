@@ -1,3 +1,7 @@
 streamlit
 fpdf2
 pillow
+streamlit
+streamlit-webrtc
+av
+opencv-python-headless
