@@ -28,11 +28,13 @@ if 'authenticated' not in st.session_state:
 if 'discovery_log' not in st.session_state:
     st.session_state.discovery_log = []
 if 'language' not in st.session_state:
-    st.session_state.language = 'en'  # default English
+    st.session_state.language = 'en'
 if 'captured_image' not in st.session_state:
     st.session_state.captured_image = None
 if 'camera_method' not in st.session_state:
-    st.session_state.camera_method = 'camera'  # 'camera' or 'upload'
+    st.session_state.camera_method = 'camera'
+if 'temp_captured' not in st.session_state:
+    st.session_state.temp_captured = None  # store captured image from widget before final use
 
 # --- 3. TRANSLATIONS ---
 TRANSLATIONS = {
@@ -70,10 +72,14 @@ TRANSLATIONS = {
         'main_subheader': 'Universal Discovery & Humanity Advancement',
         'scan_subheader': '🔍 Universal Atomic Scan',
         'camera_method_label': 'How to capture the sample:',
-        'camera_option': '📸 Take photo with camera (flip to rear camera using the ↻ button)',
-        'upload_option': '📁 Upload photo from device (recommended for rear camera)',
-        'camera_instruction': '🔍 Point your camera at the soil, then tap the flip button (↻) to switch to rear camera.',
-        'upload_instruction': '📸 Take a photo with your device\'s camera (rear camera) and upload it here.',
+        'camera_option': '📸 Take photo with camera (flip button below)',
+        'upload_option': '📁 Upload photo from device',
+        'camera_instruction': '📸 Adjust the camera, then click the flip button (↻) to switch between front and rear camera.',
+        'upload_instruction': '📸 Take a photo with your device\'s camera and upload it here.',
+        'flip_button': '↻ Flip Camera',
+        'capture_button': '📷 Capture Image',
+        'use_image_button': '✅ Use this image',
+        'camera_placeholder': 'Camera feed will appear here after granting permission.',
         'site_label': 'Site Name:',
         'site_placeholder': 'Grand Goâve',
         'photo_label': 'Sample Analysis',
@@ -131,10 +137,14 @@ TRANSLATIONS = {
         'main_subheader': 'Découverte Universelle & Avancement Humain',
         'scan_subheader': '🔍 Analyse Atomique Universelle',
         'camera_method_label': 'Comment capturer l\'échantillon:',
-        'camera_option': '📸 Prendre une photo avec l\'appareil (utilisez le bouton ↻ pour passer à la caméra arrière)',
-        'upload_option': '📁 Télécharger une photo depuis l\'appareil (recommandé pour la caméra arrière)',
-        'camera_instruction': '🔍 Pointez votre appareil vers le sol, puis appuyez sur le bouton de retournement (↻) pour passer à la caméra arrière.',
-        'upload_instruction': '📸 Prenez une photo avec l\'appareil photo de votre téléphone (caméra arrière) et téléchargez-la ici.',
+        'camera_option': '📸 Prendre une photo avec l\'appareil (bouton de retournement ci-dessous)',
+        'upload_option': '📁 Télécharger une photo depuis l\'appareil',
+        'camera_instruction': '📸 Ajustez la caméra, puis cliquez sur le bouton ↻ pour passer entre caméra avant et arrière.',
+        'upload_instruction': '📸 Prenez une photo avec l\'appareil photo de votre téléphone et téléchargez-la ici.',
+        'flip_button': '↻ Retourner la caméra',
+        'capture_button': '📷 Capturer l\'image',
+        'use_image_button': '✅ Utiliser cette image',
+        'camera_placeholder': 'Le flux vidéo apparaîtra ici après autorisation.',
         'site_label': 'Nom du site:',
         'site_placeholder': 'Grand Goâve',
         'photo_label': 'Analyse d\'échantillon',
@@ -192,10 +202,14 @@ TRANSLATIONS = {
         'main_subheader': 'Descubrimiento Universal & Avance Humano',
         'scan_subheader': '🔍 Escaneo Atómico Universal',
         'camera_method_label': 'Cómo capturar la muestra:',
-        'camera_option': '📸 Tomar foto con la cámara (use el botón ↻ para cambiar a la cámara trasera)',
-        'upload_option': '📁 Subir foto desde el dispositivo (recomendado para cámara trasera)',
-        'camera_instruction': '🔍 Apunte su cámara al suelo, luego toque el botón de volteo (↻) para cambiar a la cámara trasera.',
-        'upload_instruction': '📸 Tome una foto con la cámara de su dispositivo (cámara trasera) y súbala aquí.',
+        'camera_option': '📸 Tomar foto con la cámara (botón de volteo abajo)',
+        'upload_option': '📁 Subir foto desde el dispositivo',
+        'camera_instruction': '📸 Ajuste la cámara, luego haga clic en el botón ↻ para cambiar entre cámara frontal y trasera.',
+        'upload_instruction': '📸 Tome una foto con la cámara de su dispositivo y súbala aquí.',
+        'flip_button': '↻ Voltear cámara',
+        'capture_button': '📷 Capturar imagen',
+        'use_image_button': '✅ Usar esta imagen',
+        'camera_placeholder': 'El flujo de la cámara aparecerá aquí después de conceder permiso.',
         'site_label': 'Nombre del sitio:',
         'site_placeholder': 'Grand Goâve',
         'photo_label': 'Análisis de muestra',
@@ -253,10 +267,14 @@ TRANSLATIONS = {
         'main_subheader': 'Dekouvèt Inivèsèl & Avansman Imèn',
         'scan_subheader': '🔍 Analiz Atomik Inivèsèl',
         'camera_method_label': 'Ki jan pou pran foto echantiyon an:',
-        'camera_option': '📸 Pran foto ak kamera (sèvi ak bouton ↻ pou chanje nan kamera dèyè)',
-        'upload_option': '📁 Telechaje foto depi aparèy ou (rekòmande pou kamera dèyè)',
-        'camera_instruction': '🔍 Montre kamera ou sou tè a, epi peze bouton vire (↻) pou chanje nan kamera dèyè.',
-        'upload_instruction': '📸 Pran yon foto ak kamera aparèy ou (kamera dèyè) epi telechaje li isit la.',
+        'camera_option': '📸 Pran foto ak kamera (bouton vire anba a)',
+        'upload_option': '📁 Telechaje foto depi aparèy ou',
+        'camera_instruction': '📸 Ajiste kamera a, epi peze bouton ↻ pou chanje ant kamera devan ak dèyè.',
+        'upload_instruction': '📸 Pran yon foto ak kamera aparèy ou epi telechaje li isit la.',
+        'flip_button': '↻ Vire Kamera',
+        'capture_button': '📷 Pran Foto',
+        'use_image_button': '✅ Sèvi ak foto sa a',
+        'camera_placeholder': 'Flò kamera a ap parèt isit la apre w bay pèmisyon.',
         'site_label': 'Non sit:',
         'site_placeholder': 'Grand Goâve',
         'photo_label': 'Analiz echantiyon',
@@ -299,10 +317,142 @@ def analyze_resource(text):
                 return m, category
     return "Unknown Mineral", "Unclassified"
 
-# --- 5. UI CONFIG ---
+# --- 5. CUSTOM CAMERA WIDGET (with flip button) ---
+def custom_camera_widget():
+    """Display a custom camera widget with flip button and capture."""
+    # Unique ID to avoid conflicts
+    widget_id = f"camera_{uuid.uuid4().hex[:8]}"
+
+    # HTML/JS to show video stream, flip cameras, and capture
+    html_code = f"""
+    <div id="{widget_id}_container">
+        <video id="{widget_id}_video" autoplay playsinline style="width: 100%; max-width: 500px; border: 2px solid #00209F; border-radius: 10px; background: #000;"></video>
+        <div style="margin-top: 10px;">
+            <button id="{widget_id}_flip" style="padding: 8px 16px; background-color: #00209F; color: white; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">↻ Flip Camera</button>
+            <button id="{widget_id}_capture" style="padding: 8px 16px; background-color: #D21034; color: white; border: none; border-radius: 5px; cursor: pointer;">📷 Capture Image</button>
+        </div>
+        <canvas id="{widget_id}_canvas" style="display: none;"></canvas>
+        <div id="{widget_id}_thumbnail" style="margin-top: 10px;"></div>
+        <input type="hidden" id="{widget_id}_image_data" name="image_data">
+    </div>
+    <script>
+        (function() {{
+            const video = document.getElementById("{widget_id}_video");
+            const flipBtn = document.getElementById("{widget_id}_flip");
+            const captureBtn = document.getElementById("{widget_id}_capture");
+            const canvas = document.getElementById("{widget_id}_canvas");
+            const thumbnailDiv = document.getElementById("{widget_id}_thumbnail");
+            const imageDataField = document.getElementById("{widget_id}_image_data");
+
+            let currentStream = null;
+            let devices = [];
+            let currentDeviceIndex = 0;
+
+            // Stop current stream
+            function stopStream() {{
+                if (currentStream) {{
+                    currentStream.getTracks().forEach(track => track.stop());
+                    currentStream = null;
+                }}
+            }}
+
+            // Start video with specific deviceId
+            function startVideo(deviceId) {{
+                stopStream();
+                const constraints = {{
+                    video: deviceId ? {{ deviceId: {{ exact: deviceId }} }} : true
+                }};
+                navigator.mediaDevices.getUserMedia(constraints)
+                    .then(stream => {{
+                        currentStream = stream;
+                        video.srcObject = stream;
+                        video.play();
+                    }})
+                    .catch(err => {{
+                        console.error("Camera error:", err);
+                        video.style.background = "#ccc";
+                        video.style.display = "none";
+                        document.getElementById("{widget_id}_container").innerHTML += "<p style='color:red;'>Cannot access camera. Please check permissions.</p>";
+                    }});
+            }}
+
+            // Enumerate cameras
+            navigator.mediaDevices.enumerateDevices()
+                .then(devicesList => {{
+                    devices = devicesList.filter(device => device.kind === 'videoinput');
+                    if (devices.length > 0) {{
+                        // Try to select rear camera if available
+                        const rearIndex = devices.findIndex(device =>
+                            device.label.toLowerCase().includes('back') ||
+                            device.label.toLowerCase().includes('rear') ||
+                            device.label.toLowerCase().includes('environment')
+                        );
+                        if (rearIndex !== -1) {{
+                            currentDeviceIndex = rearIndex;
+                        }} else {{
+                            currentDeviceIndex = 0;
+                        }}
+                        startVideo(devices[currentDeviceIndex].deviceId);
+                    }} else {{
+                        startVideo(null);
+                    }}
+                }})
+                .catch(err => {{
+                    console.error("Enumerate error:", err);
+                    startVideo(null);
+                }});
+
+            // Flip button: cycle to next camera
+            flipBtn.addEventListener('click', () => {{
+                if (devices.length === 0) {{
+                    alert("No other cameras found.");
+                    return;
+                }}
+                currentDeviceIndex = (currentDeviceIndex + 1) % devices.length;
+                startVideo(devices[currentDeviceIndex].deviceId);
+            }});
+
+            // Capture image
+            captureBtn.addEventListener('click', () => {{
+                if (video.videoWidth === 0) {{
+                    alert("No video stream. Please ensure camera is working.");
+                    return;
+                }}
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const dataURL = canvas.toDataURL('image/jpeg', 0.8);
+                imageDataField.value = dataURL;
+                // Show thumbnail
+                const img = new Image();
+                img.src = dataURL;
+                img.style.maxWidth = '100%';
+                img.style.maxHeight = '200px';
+                img.style.border = '1px solid #ccc';
+                img.style.borderRadius = '5px';
+                img.style.marginTop = '10px';
+                thumbnailDiv.innerHTML = '';
+                thumbnailDiv.appendChild(img);
+                // Trigger change so Streamlit can read the value
+                const event = new Event('change', {{ bubbles: true }});
+                imageDataField.dispatchEvent(event);
+            }});
+        }})();
+    </script>
+    """
+    # Render the widget
+    st.markdown(html_code, unsafe_allow_html=True)
+
+    # Use a hidden text input to capture the image data
+    # Streamlit will automatically update this input when the JS changes it
+    image_data = st.text_input("_hidden_camera_data", key=f"{widget_id}_hidden", label_visibility="collapsed")
+    return image_data
+
+# --- 6. UI CONFIG ---
 st.set_page_config(page_title="Infinity Engine v33.0", layout="centered")
 
-# Language selector at the very top
+# Language selector
 col1, col2 = st.columns([3, 1])
 with col1:
     st.markdown(get_text('owner_collab'), unsafe_allow_html=True)
@@ -346,7 +496,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 6. SIDEBAR AUTH ---
+# --- 7. SIDEBAR AUTH ---
 with st.sidebar:
     st.title(get_text('sidebar_title'))
     if not st.session_state.authenticated:
@@ -365,11 +515,11 @@ with st.sidebar:
             st.session_state.authenticated = False
             st.rerun()
 
-# --- 7. WELCOME SOUND ---
+# --- 8. WELCOME SOUND ---
 if st.session_state.authenticated and st.query_params.get("play_sound") == "true":
     st.markdown(f"<script>{get_text('welcome_sound_js')}</script>", unsafe_allow_html=True)
 
-# --- 8. MAIN INTERFACE ---
+# --- 9. MAIN INTERFACE ---
 st.markdown(f'<div class="main-header"><h1>{get_text("main_header")}</h1><p>{get_text("main_subheader")}</p></div>', unsafe_allow_html=True)
 
 if st.session_state.authenticated:
@@ -386,9 +536,17 @@ if st.session_state.authenticated:
 
     if method == 'camera':
         st.markdown(f"<p style='font-size:0.9rem; color:#555;'>{get_text('camera_instruction')}</p>", unsafe_allow_html=True)
-        photo = st.camera_input(get_text('photo_label'))
-        if photo:
-            st.session_state.captured_image = photo
+        captured_data = custom_camera_widget()
+
+        # If an image was captured, show a "Use this image" button
+        if captured_data and captured_data.startswith('data:image'):
+            st.image(captured_data, caption="Captured image", width=200)
+            if st.button(get_text('use_image_button')):
+                st.session_state.captured_image = captured_data
+                st.success("Image saved! You can now execute the analysis.")
+                st.rerun()
+        else:
+            st.info(get_text('camera_placeholder'))
     else:
         st.markdown(f"<p style='font-size:0.9rem; color:#555;'>{get_text('upload_instruction')}</p>", unsafe_allow_html=True)
         uploaded = st.file_uploader(get_text('photo_label'), type=['jpg', 'jpeg', 'png'])
