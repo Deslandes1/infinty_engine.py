@@ -40,7 +40,7 @@ if 'captured_image' not in st.session_state:
 if 'camera_method' not in st.session_state:
     st.session_state.camera_method = 'camera'
 
-# --- TRANSLATIONS (keep your existing translations) ---
+# --- TRANSLATIONS (all four languages) ---
 TRANSLATIONS = {
     'en': {
         'app_title': 'INFINITY ENGINE v33.0',
@@ -169,8 +169,137 @@ TRANSLATIONS = {
         'language_selector': 'Langue / Language',
         'unknown_mineral': 'Minéral Inconnu',
         'unclassified': 'Non Classifié'
+    },
+    'es': {
+        # For now, using English as placeholder; replace with actual Spanish translations later.
+        'app_title': 'INFINITY ENGINE v33.0',
+        'app_subtitle': 'Universal Discovery & Humanity Advancement',
+        'owner_collab': 'Owner: <strong>Gesner Deslandes</strong> &nbsp;|&nbsp; Collaborators: Gesner Junior Deslandes, Roosevelt Deslandes, Sebastien Stephane Deslandes & Zendaya Christelle Deslandes',
+        'sidebar_title': '🛡️ Engine Access',
+        'sidebar_activation': 'Activation via MonCash: **{moncash}**',
+        'sidebar_key_label': 'Key:',
+        'sidebar_unlock': 'Unlock Engine',
+        'sidebar_invalid': 'Invalid Key',
+        'sidebar_granted': '✅ ACCESS GRANTED',
+        'sidebar_logout': 'Logout',
+        'welcome_sound_js': """
+            function playBeep() {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.type = 'sine';
+                oscillator.frequency.value = 880;
+                gainNode.gain.value = 0.3;
+                oscillator.start();
+                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.5);
+                oscillator.stop(audioContext.currentTime + 0.5);
+            }
+            playBeep();
+            const url = new URL(window.location);
+            url.searchParams.delete('play_sound');
+            window.history.replaceState({}, document.title, url.pathname + url.search);
+        """,
+        'main_header': 'INFINITY ENGINE v33.0',
+        'main_subheader': 'Universal Discovery & Humanity Advancement',
+        'scan_subheader': '🔍 Universal Atomic Scan',
+        'camera_method_label': 'How to capture the sample:',
+        'camera_option': '📸 Take photo with camera (reverse button below)',
+        'upload_option': '📁 Upload photo from device',
+        'camera_instruction': '📸 Point the camera at the soil. Use the Reverse button to switch between front and rear cameras.',
+        'upload_instruction': '📸 Take a photo with your device\'s camera and upload it here.',
+        'reverse_button': '↻ Reverse Camera',
+        'capture_button': '📷 Capture Image',
+        'camera_placeholder': 'Camera feed will appear here after granting permission.',
+        'site_label': 'Site Name:',
+        'site_placeholder': 'Grand Goâve',
+        'photo_label': 'Sample Analysis',
+        'notes_label': 'Analysis Notes (Detected Clues):',
+        'weight_label': 'Mass (kg):',
+        'execute_button': '🚀 EXECUTE UNIVERSAL ANALYSIS',
+        'no_photo_error': 'Please capture or upload an image first.',
+        'report_title': 'SOVEREIGN DISCOVERY REPORT',
+        'resource_label': 'Resource Identified:',
+        'trace_label': 'Scientific Trace:',
+        'value_usd_label': 'Estimated Market Value: ${value:,.2f} USD',
+        'value_htg_label': 'Local Economic Value: {value:,.2f} HTG',
+        'solution_label': 'Humanity Solution:',
+        'solution_text': '{resource} development leads to national infrastructure sovereignty.',
+        'strategic_intel': '🌍 Strategic Intelligence',
+        'recent_log': '**Recent Activity Log:**',
+        'download_button': '📊 Download Research History (CSV)',
+        'no_data_info': 'No discoveries recorded yet. Perform a scan to generate data.',
+        'access_warning': 'Please enter your Master Key in the sidebar to begin scanning.',
+        'language_selector': 'Idioma / Language',
+        'unknown_mineral': 'Unknown Mineral',
+        'unclassified': 'Unclassified'
+    },
+    'ht': {
+        # For now, using English as placeholder; replace with actual Haitian Creole translations later.
+        'app_title': 'INFINITY ENGINE v33.0',
+        'app_subtitle': 'Universal Discovery & Humanity Advancement',
+        'owner_collab': 'Owner: <strong>Gesner Deslandes</strong> &nbsp;|&nbsp; Collaborators: Gesner Junior Deslandes, Roosevelt Deslandes, Sebastien Stephane Deslandes & Zendaya Christelle Deslandes',
+        'sidebar_title': '🛡️ Engine Access',
+        'sidebar_activation': 'Activation via MonCash: **{moncash}**',
+        'sidebar_key_label': 'Key:',
+        'sidebar_unlock': 'Unlock Engine',
+        'sidebar_invalid': 'Invalid Key',
+        'sidebar_granted': '✅ ACCESS GRANTED',
+        'sidebar_logout': 'Logout',
+        'welcome_sound_js': """
+            function playBeep() {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.type = 'sine';
+                oscillator.frequency.value = 880;
+                gainNode.gain.value = 0.3;
+                oscillator.start();
+                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.5);
+                oscillator.stop(audioContext.currentTime + 0.5);
+            }
+            playBeep();
+            const url = new URL(window.location);
+            url.searchParams.delete('play_sound');
+            window.history.replaceState({}, document.title, url.pathname + url.search);
+        """,
+        'main_header': 'INFINITY ENGINE v33.0',
+        'main_subheader': 'Universal Discovery & Humanity Advancement',
+        'scan_subheader': '🔍 Universal Atomic Scan',
+        'camera_method_label': 'How to capture the sample:',
+        'camera_option': '📸 Take photo with camera (reverse button below)',
+        'upload_option': '📁 Upload photo from device',
+        'camera_instruction': '📸 Point the camera at the soil. Use the Reverse button to switch between front and rear cameras.',
+        'upload_instruction': '📸 Take a photo with your device\'s camera and upload it here.',
+        'reverse_button': '↻ Reverse Camera',
+        'capture_button': '📷 Capture Image',
+        'camera_placeholder': 'Camera feed will appear here after granting permission.',
+        'site_label': 'Site Name:',
+        'site_placeholder': 'Grand Goâve',
+        'photo_label': 'Sample Analysis',
+        'notes_label': 'Analysis Notes (Detected Clues):',
+        'weight_label': 'Mass (kg):',
+        'execute_button': '🚀 EXECUTE UNIVERSAL ANALYSIS',
+        'no_photo_error': 'Please capture or upload an image first.',
+        'report_title': 'SOVEREIGN DISCOVERY REPORT',
+        'resource_label': 'Resource Identified:',
+        'trace_label': 'Scientific Trace:',
+        'value_usd_label': 'Estimated Market Value: ${value:,.2f} USD',
+        'value_htg_label': 'Local Economic Value: {value:,.2f} HTG',
+        'solution_label': 'Humanity Solution:',
+        'solution_text': '{resource} development leads to national infrastructure sovereignty.',
+        'strategic_intel': '🌍 Strategic Intelligence',
+        'recent_log': '**Recent Activity Log:**',
+        'download_button': '📊 Download Research History (CSV)',
+        'no_data_info': 'No discoveries recorded yet. Perform a scan to generate data.',
+        'access_warning': 'Please enter your Master Key in the sidebar to begin scanning.',
+        'language_selector': 'Lang / Language',
+        'unknown_mineral': 'Unknown Mineral',
+        'unclassified': 'Unclassified'
     }
-    # Add Spanish and Haitian Creole translations here if desired
 }
 
 def get_text(key, lang=None, **kwargs):
@@ -193,7 +322,6 @@ def analyze_resource(text):
 # --- IMAGE CLASSIFICATION MODEL ---
 @st.cache_resource
 def load_model():
-    """Load the pre-trained MobileNetV2 model."""
     model = MobileNetV2(weights='imagenet')
     return model
 
@@ -205,19 +333,16 @@ def classify_image(image_bytes):
     """
     try:
         model = load_model()
-        # Load image and preprocess
         img = Image.open(io.BytesIO(image_bytes)).convert('RGB')
         img = img.resize((224, 224))
         img_array = np.array(img)
         img_array = np.expand_dims(img_array, axis=0)
         img_array = preprocess_input(img_array)
 
-        # Predict
         preds = model.predict(img_array, verbose=0)
         decoded = decode_predictions(preds, top=3)[0]  # top 3 predictions
 
-        # Map ImageNet labels to our mineral categories
-        # This is a simple mapping; you can improve it later
+        # Simple mapping – can be improved later
         mapping = {
             'gold': 'gold', 'silver': 'silver', 'platinum': 'platinum',
             'copper': 'copper', 'iron': 'iron', 'uranium': 'uranium',
@@ -228,11 +353,10 @@ def classify_image(image_bytes):
             label_lower = label.lower()
             for keyword, mineral in mapping.items():
                 if keyword in label_lower:
-                    # Find which category this mineral belongs to
                     for cat, minerals in RESOURCE_CLASSES.items():
                         if mineral in minerals:
                             return mineral, prob, cat
-        # If no mapping found, return the top label as generic
+        # Fallback
         top_label = decoded[0][1].lower()
         if 'rock' in top_label or 'stone' in top_label:
             return "rock", decoded[0][2], "industrial"
@@ -254,7 +378,6 @@ class VideoProcessor(VideoProcessorBase):
         self.image = img
         return frame
 
-# --- Camera widget using streamlit-webrtc ---
 def camera_widget():
     webrtc_ctx = webrtc_streamer(
         key="sample-camera",
@@ -281,7 +404,6 @@ def camera_widget():
 # --- UI CONFIG ---
 st.set_page_config(page_title="Infinity Engine v33.0", layout="centered")
 
-# Language selector & owner line
 col1, col2 = st.columns([3, 1])
 with col1:
     st.markdown(get_text('owner_collab'), unsafe_allow_html=True)
@@ -307,7 +429,6 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Custom CSS
 st.markdown("""
     <style>
     .main-header { background: linear-gradient(135deg, #00209F 0%, #D21034 100%); color: white; padding: 25px; border-radius: 15px; text-align: center; border-bottom: 5px solid #FFD700; margin-bottom: 20px; }
@@ -370,38 +491,31 @@ if st.session_state.authenticated:
             st.rerun()
 
     site = st.text_input(get_text('site_label'), get_text('site_placeholder'))
-    notes = st.text_area(get_text('notes_label'))  # kept for optional user input
+    notes = st.text_area(get_text('notes_label'))
     weight = st.number_input(get_text('weight_label'), value=1.0)
 
     if st.button(get_text('execute_button')):
         if st.session_state.captured_image:
-            # Extract the base64 image data
+            # Extract image bytes
             img_data = st.session_state.captured_image
             if img_data.startswith('data:image'):
-                # Remove the data:image/jpeg;base64, prefix
                 img_base64 = img_data.split(',')[1]
                 img_bytes = base64.b64decode(img_base64)
             else:
                 img_bytes = img_data.encode()
 
-            # Perform image classification
+            # Classify image
             with st.spinner("Analyzing sample with AI..."):
                 mineral_name, confidence, category = classify_image(img_bytes)
 
-            # If the user provided notes, you could combine the classification with their text
-            # Here we'll use the classification result as the primary identification
-            res_name = mineral_name
-            res_cat = category
-
-            # If the model gave a low confidence, maybe fallback to notes
+            # Optionally combine with notes if confidence low
             if confidence < 0.5 and notes.strip():
-                # Use keyword matching on notes as a fallback
                 notes_res, notes_cat = analyze_resource(notes)
                 if notes_res != "Unknown Mineral":
-                    res_name = notes_res
-                    res_cat = notes_cat
+                    mineral_name = notes_res
+                    category = notes_cat
 
-            price = MARKET_HUB.get(res_name, 0)
+            price = MARKET_HUB.get(mineral_name, 0)
             usd_val = price * weight
             htg_val = usd_val * HTG_RATE
             rep_id = f"HSC-UNIV-{uuid.uuid4().hex[:6].upper()}"
@@ -409,16 +523,16 @@ if st.session_state.authenticated:
             st.session_state.discovery_log.append({
                 "Date": str(datetime.date.today()),
                 "ID": rep_id,
-                "Resource": res_name.upper(),
-                "Category": res_cat.upper(),
+                "Resource": mineral_name.upper(),
+                "Category": category.upper(),
                 "Site": site,
                 "Mass_kg": weight,
                 "Value_USD": usd_val,
                 "AI_Confidence": f"{confidence:.2f}"
             })
 
-            resource_display = res_name.upper() if res_name != "Unknown Mineral" else get_text('unknown_mineral')
-            category_display = res_cat.upper() if res_cat != "Unclassified" else get_text('unclassified')
+            resource_display = mineral_name.upper() if mineral_name != "Unknown Mineral" else get_text('unknown_mineral')
+            category_display = category.upper() if category != "Unclassified" else get_text('unclassified')
 
             report_html = f"""
             <div class="report-card">
@@ -430,7 +544,7 @@ if st.session_state.authenticated:
                 <h3 style="color:green;">{get_text('value_usd_label', value=usd_val)}</h3>
                 <h3 style="color:#00209F;">{get_text('value_htg_label', value=htg_val)}</h3>
                 <hr>
-                <p><b>{get_text('solution_label')}</b> {get_text('solution_text', resource=res_name.capitalize())}</p>
+                <p><b>{get_text('solution_label')}</b> {get_text('solution_text', resource=mineral_name.capitalize())}</p>
             </div>
             """
             st.markdown(report_html, unsafe_allow_html=True)
