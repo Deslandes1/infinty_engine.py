@@ -3,6 +3,7 @@ import datetime
 import uuid
 import json
 import pandas as pd
+import base64
 from io import BytesIO
 
 # --- 1. GLOBAL RESOURCE MASTER DATABASE ---
@@ -28,6 +29,8 @@ if 'discovery_log' not in st.session_state:
     st.session_state.discovery_log = []
 if 'language' not in st.session_state:
     st.session_state.language = 'en'  # default English
+if 'captured_image' not in st.session_state:
+    st.session_state.captured_image = None
 
 # --- 3. TRANSLATIONS ---
 TRANSLATIONS = {
@@ -64,14 +67,16 @@ TRANSLATIONS = {
         'main_header': 'INFINITY ENGINE v33.0',
         'main_subheader': 'Universal Discovery & Humanity Advancement',
         'scan_subheader': '🔍 Universal Atomic Scan',
-        'camera_instruction': '📸 Point your camera at the soil sample and click the button below to capture.',
+        'camera_instruction': '📸 Choose your camera (rear camera recommended for soil samples)',
+        'camera_label': 'Camera Selection',
+        'capture_button': '📷 Capture Sample',
         'site_label': 'Site Name:',
         'site_placeholder': 'Grand Goâve',
         'photo_label': 'Sample Analysis (Camera)',
         'notes_label': 'Analysis Notes (Detected Clues):',
         'weight_label': 'Mass (kg):',
         'execute_button': '🚀 EXECUTE UNIVERSAL ANALYSIS',
-        'no_photo_error': 'Please provide a visual scan.',
+        'no_photo_error': 'Please capture a sample image first.',
         'report_title': 'SOVEREIGN DISCOVERY REPORT',
         'resource_label': 'Resource Identified:',
         'trace_label': 'Scientific Trace:',
@@ -121,14 +126,16 @@ TRANSLATIONS = {
         'main_header': 'MOTEUR INFINI v33.0',
         'main_subheader': 'Découverte Universelle & Avancement Humain',
         'scan_subheader': '🔍 Analyse Atomique Universelle',
-        'camera_instruction': '📸 Pointez votre appareil vers l\'échantillon de sol et cliquez sur le bouton ci-dessous pour capturer.',
+        'camera_instruction': '📸 Choisissez votre caméra (caméra arrière recommandée pour les échantillons de sol)',
+        'camera_label': 'Sélection de la caméra',
+        'capture_button': '📷 Capturer l\'échantillon',
         'site_label': 'Nom du site:',
         'site_placeholder': 'Grand Goâve',
         'photo_label': 'Analyse d\'échantillon (Caméra)',
         'notes_label': 'Notes d\'analyse (indices détectés):',
         'weight_label': 'Masse (kg):',
         'execute_button': '🚀 EXÉCUTER L\'ANALYSE UNIVERSELLE',
-        'no_photo_error': 'Veuillez fournir un scan visuel.',
+        'no_photo_error': 'Veuillez d\'abord capturer une image de l\'échantillon.',
         'report_title': 'RAPPORT DE DÉCOUVERTE SOUVERAINE',
         'resource_label': 'Ressource identifiée:',
         'trace_label': 'Trace scientifique:',
@@ -178,14 +185,16 @@ TRANSLATIONS = {
         'main_header': 'MOTOR INFINITO v33.0',
         'main_subheader': 'Descubrimiento Universal & Avance Humano',
         'scan_subheader': '🔍 Escaneo Atómico Universal',
-        'camera_instruction': '📸 Apunte su cámara a la muestra de suelo y haga clic en el botón de abajo para capturar.',
+        'camera_instruction': '📸 Elija su cámara (cámara trasera recomendada para muestras de suelo)',
+        'camera_label': 'Selección de cámara',
+        'capture_button': '📷 Capturar muestra',
         'site_label': 'Nombre del sitio:',
         'site_placeholder': 'Grand Goâve',
         'photo_label': 'Análisis de muestra (Cámara)',
         'notes_label': 'Notas de análisis (pistas detectadas):',
         'weight_label': 'Masa (kg):',
         'execute_button': '🚀 EJECUTAR ANÁLISIS UNIVERSAL',
-        'no_photo_error': 'Por favor proporcione un escaneo visual.',
+        'no_photo_error': 'Primero capture una imagen de la muestra.',
         'report_title': 'INFORME DE DESCUBRIMIENTO SOBERANO',
         'resource_label': 'Recurso identificado:',
         'trace_label': 'Traza científica:',
@@ -235,14 +244,16 @@ TRANSLATIONS = {
         'main_header': 'MOTEUR ENFINI v33.0',
         'main_subheader': 'Dekouvèt Inivèsèl & Avansman Imèn',
         'scan_subheader': '🔍 Analiz Atomik Inivèsèl',
-        'camera_instruction': '📸 Montre kamera ou sou echantiyon tè a epi klike sou bouton anba a pou pran foto.',
+        'camera_instruction': '📸 Chwazi kamera ou (kamera dèyè rekòmande pou echantiyon tè)',
+        'camera_label': 'Seleksyon Kamera',
+        'capture_button': '📷 Pran Foto Echantiyon',
         'site_label': 'Non sit:',
         'site_placeholder': 'Grand Goâve',
         'photo_label': 'Analiz echantiyon (Kamera)',
         'notes_label': 'Nòt analiz (endis detekte):',
         'weight_label': 'Mas (kg):',
         'execute_button': '🚀 EKZEKITE ANALIZ INIVÈSÈL',
-        'no_photo_error': 'Tanpri bay yon eskanè vizyèl.',
+        'no_photo_error': 'Tanpri pran yon foto echantiyon an premye.',
         'report_title': 'RAPÒ DEKOUVÈT SOUVÈN',
         'resource_label': 'Rès idantifye:',
         'trace_label': 'Trase syantifik:',
@@ -278,7 +289,159 @@ def analyze_resource(text):
             if m in text: return m, category
     return "Unknown Mineral", "Unclassified"
 
-# --- 5. UI CONFIG ---
+# --- 5. CUSTOM CAMERA COMPONENT (with rear camera support) ---
+def custom_camera_widget():
+    """Display a custom camera widget that allows camera selection."""
+    # Use a unique ID to avoid conflicts
+    widget_id = "camera_widget_" + str(uuid.uuid4()).replace("-", "_")
+    
+    # HTML/JS code to list cameras, let user select, and capture image
+    html_code = f"""
+    <div id="{widget_id}_container">
+        <div style="margin-bottom: 10px;">
+            <label for="{widget_id}_camera_select">{get_text('camera_label')}: </label>
+            <select id="{widget_id}_camera_select" style="padding: 5px; border-radius: 5px;">
+                <option value="">-- Loading cameras --</option>
+            </select>
+        </div>
+        <video id="{widget_id}_video" autoplay playsinline style="width: 100%; max-width: 500px; border: 2px solid #00209F; border-radius: 10px;"></video>
+        <br>
+        <button id="{widget_id}_capture" style="margin-top: 10px; padding: 8px 16px; background-color: #D21034; color: white; border: none; border-radius: 5px; cursor: pointer;">{get_text('capture_button')}</button>
+        <canvas id="{widget_id}_canvas" style="display: none;"></canvas>
+        <input type="hidden" id="{widget_id}_image_data" name="image_data">
+    </div>
+    <script>
+        (function() {{
+            const video = document.getElementById("{widget_id}_video");
+            const select = document.getElementById("{widget_id}_camera_select");
+            const captureBtn = document.getElementById("{widget_id}_capture");
+            const canvas = document.getElementById("{widget_id}_canvas");
+            const imageDataField = document.getElementById("{widget_id}_image_data");
+            let currentStream = null;
+            let devices = [];
+            
+            // Function to stop any active stream
+            function stopStream() {{
+                if (currentStream) {{
+                    currentStream.getTracks().forEach(track => track.stop());
+                    currentStream = null;
+                }}
+            }}
+            
+            // Function to start video with selected device
+            function startVideo(deviceId) {{
+                stopStream();
+                const constraints = {{
+                    video: deviceId ? {{ deviceId: {{ exact: deviceId }} }} : true
+                }};
+                navigator.mediaDevices.getUserMedia(constraints)
+                    .then(stream => {{
+                        currentStream = stream;
+                        video.srcObject = stream;
+                        video.play();
+                    }})
+                    .catch(err => {{
+                        console.error("Error accessing camera:", err);
+                        alert("Could not access camera. Please allow camera permissions.");
+                    }});
+            }}
+            
+            // Enumerate cameras
+            navigator.mediaDevices.enumerateDevices()
+                .then(devicesList => {{
+                    devices = devicesList.filter(device => device.kind === 'videoinput');
+                    select.innerHTML = "";
+                    devices.forEach((device, idx) => {{
+                        const option = document.createElement('option');
+                        option.value = device.deviceId;
+                        // Try to get a friendly label
+                        let label = device.label || `Camera ${{idx+1}}`;
+                        if (label.toLowerCase().includes('back') || label.toLowerCase().includes('rear')) {{
+                            label = "📷 Rear Camera (recommended)";
+                        }} else if (label.toLowerCase().includes('front')) {{
+                            label = "🤳 Front Camera (selfie)";
+                        }}
+                        option.text = label;
+                        select.appendChild(option);
+                    }});
+                    // If we have a rear camera, try to select it
+                    const rearIndex = devices.findIndex(device => 
+                        device.label.toLowerCase().includes('back') || 
+                        device.label.toLowerCase().includes('rear')
+                    );
+                    if (rearIndex !== -1) {{
+                        select.selectedIndex = rearIndex;
+                        startVideo(devices[rearIndex].deviceId);
+                    }} else if (devices.length > 0) {{
+                        select.selectedIndex = 0;
+                        startVideo(devices[0].deviceId);
+                    }} else {{
+                        // No cameras? fallback to default
+                        startVideo(null);
+                    }}
+                }})
+                .catch(err => {{
+                    console.error("Error enumerating devices:", err);
+                    startVideo(null);
+                }});
+            
+            // When user selects a different camera
+            select.addEventListener('change', () => {{
+                const deviceId = select.value;
+                if (deviceId) {{
+                    startVideo(deviceId);
+                }} else if (devices.length > 0) {{
+                    startVideo(devices[0].deviceId);
+                }}
+            }});
+            
+            // Capture image
+            captureBtn.addEventListener('click', () => {{
+                if (video.videoWidth === 0) {{
+                    alert("No video stream available. Please select a camera.");
+                    return;
+                }}
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const dataURL = canvas.toDataURL('image/jpeg', 0.8);
+                imageDataField.value = dataURL;
+                // Trigger a change event so Streamlit picks up the value
+                const event = new Event('change', {{ bubbles: true }});
+                imageDataField.dispatchEvent(event);
+                // Optional: show captured thumbnail
+                const img = new Image();
+                img.src = dataURL;
+                img.style.maxWidth = '100%';
+                img.style.maxHeight = '200px';
+                img.style.marginTop = '10px';
+                img.style.border = '1px solid #ccc';
+                img.style.borderRadius = '5px';
+                const oldImg = document.getElementById("{widget_id}_thumbnail");
+                if (oldImg) oldImg.remove();
+                img.id = "{widget_id}_thumbnail";
+                document.getElementById("{widget_id}_container").appendChild(img);
+            }});
+        }})();
+    </script>
+    """
+    # Render the HTML widget
+    st.markdown(html_code, unsafe_allow_html=True)
+    
+    # We need a way to get the captured image data into Streamlit.
+    # Use st.empty() and a hidden input that we can read via JavaScript.
+    # Since Streamlit doesn't directly support custom form inputs, we'll use a hidden input
+    # and a placeholder that will be updated when the user captures an image.
+    # The data will be stored in a session state via a callback.
+    
+    # Create a placeholder for the hidden input value
+    image_data = st.text_input("_hidden_camera_data", key="hidden_camera_data", label_visibility="collapsed")
+    
+    # Return the captured image data
+    return image_data
+
+# --- 6. UI CONFIG ---
 st.set_page_config(page_title="Infinity Engine v33.0", layout="centered")
 
 # Language selector at the very top (two columns for alignment)
@@ -325,7 +488,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 6. SIDEBAR AUTH ---
+# --- 7. SIDEBAR AUTH ---
 with st.sidebar:
     st.title(get_text('sidebar_title'))
     if not st.session_state.authenticated:
@@ -334,7 +497,6 @@ with st.sidebar:
         if st.button(get_text('sidebar_unlock')):
             if user_key == MASTER_KEY:
                 st.session_state.authenticated = True
-                # Set query param to trigger welcome sound on next load
                 st.query_params["play_sound"] = "true"
                 st.rerun()
             else:
@@ -345,21 +507,27 @@ with st.sidebar:
             st.session_state.authenticated = False
             st.rerun()
 
-# --- 7. WELCOME SOUND (plays once after authentication) ---
+# --- 8. WELCOME SOUND (plays once after authentication) ---
 if st.session_state.authenticated and st.query_params.get("play_sound") == "true":
-    # Inject JavaScript to play a short beep and remove the query param
     st.markdown(f"<script>{get_text('welcome_sound_js')}</script>", unsafe_allow_html=True)
 
-# --- 8. MAIN INTERFACE ---
+# --- 9. MAIN INTERFACE ---
 st.markdown(f'<div class="main-header"><h1>{get_text("main_header")}</h1><p>{get_text("main_subheader")}</p></div>', unsafe_allow_html=True)
 
 if st.session_state.authenticated:
     # --- Section 1: Input ---
     st.subheader(get_text('scan_subheader'))
     
-    # Camera input with instructions
+    # Custom camera widget with camera selection
     st.markdown(f"<p style='font-size:0.9rem; color:#555;'>{get_text('camera_instruction')}</p>", unsafe_allow_html=True)
-    photo = st.camera_input(get_text('photo_label'))
+    image_data = custom_camera_widget()
+    
+    # Store captured image in session state
+    if image_data and image_data.startswith('data:image'):
+        st.session_state.captured_image = image_data
+    elif not image_data:
+        # If no image yet, we can keep the old one, but allow new capture to override
+        pass
     
     site = st.text_input(get_text('site_label'), get_text('site_placeholder'))
     notes = st.text_area(get_text('notes_label'))
@@ -367,7 +535,8 @@ if st.session_state.authenticated:
     
     # --- Section 2: Execution ---
     if st.button(get_text('execute_button')):
-        if photo:
+        if st.session_state.captured_image:
+            # We have an image, proceed
             res_name, res_cat = analyze_resource(notes)
             price = MARKET_HUB.get(res_name, 0)
             usd_val = price * weight
