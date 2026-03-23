@@ -1,10 +1,9 @@
 import streamlit as st
 import datetime
 import uuid
-import json
 import pandas as pd
 import base64
-from io import BytesIO
+import json
 
 # --- 1. GLOBAL RESOURCE MASTER DATABASE ---
 RESOURCE_CLASSES = {
@@ -34,17 +33,269 @@ if 'captured_image' not in st.session_state:
 if 'camera_method' not in st.session_state:
     st.session_state.camera_method = 'camera'
 
-# --- 3. TRANSLATIONS (same as before, but truncated for space) ---
-# ... (keep the full TRANSLATIONS dict from previous code)
-# I'll include a shortened version here to save space; you should keep your full translations.
+# --- 3. TRANSLATIONS (complete) ---
 TRANSLATIONS = {
     'en': {
-        # ... all keys ...
+        'app_title': 'INFINITY ENGINE v33.0',
+        'app_subtitle': 'Universal Discovery & Humanity Advancement',
+        'owner_collab': 'Owner: <strong>Gesner Deslandes</strong> &nbsp;|&nbsp; Collaborators: Gesner Junior Deslandes, Roosevelt Deslandes, Sebastien Stephane Deslandes & Zendaya Christelle Deslandes',
+        'sidebar_title': '🛡️ Engine Access',
+        'sidebar_activation': 'Activation via MonCash: **{moncash}**',
+        'sidebar_key_label': 'Key:',
+        'sidebar_unlock': 'Unlock Engine',
+        'sidebar_invalid': 'Invalid Key',
+        'sidebar_granted': '✅ ACCESS GRANTED',
+        'sidebar_logout': 'Logout',
+        'welcome_sound_js': """
+            function playBeep() {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.type = 'sine';
+                oscillator.frequency.value = 880;
+                gainNode.gain.value = 0.3;
+                oscillator.start();
+                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.5);
+                oscillator.stop(audioContext.currentTime + 0.5);
+            }
+            playBeep();
+            const url = new URL(window.location);
+            url.searchParams.delete('play_sound');
+            window.history.replaceState({}, document.title, url.pathname + url.search);
+        """,
+        'main_header': 'INFINITY ENGINE v33.0',
+        'main_subheader': 'Universal Discovery & Humanity Advancement',
+        'scan_subheader': '🔍 Universal Atomic Scan',
+        'camera_method_label': 'How to capture the sample:',
+        'camera_option': '📸 Take photo with camera (flip button below)',
+        'upload_option': '📁 Upload photo from device',
+        'camera_instruction': '📸 Adjust the camera, then click the flip button (↻) to switch between front and rear camera.',
+        'upload_instruction': '📸 Take a photo with your device\'s camera and upload it here.',
+        'flip_button': 'Flip Camera',
+        'capture_button': 'Capture Image',
+        'use_image_button': '✅ Use this image',
+        'camera_placeholder': 'Camera feed will appear here after granting permission.',
+        'site_label': 'Site Name:',
+        'site_placeholder': 'Grand Goâve',
+        'photo_label': 'Sample Analysis',
+        'notes_label': 'Analysis Notes (Detected Clues):',
+        'weight_label': 'Mass (kg):',
+        'execute_button': '🚀 EXECUTE UNIVERSAL ANALYSIS',
+        'no_photo_error': 'Please capture or upload an image first.',
+        'report_title': 'SOVEREIGN DISCOVERY REPORT',
+        'resource_label': 'Resource Identified:',
+        'trace_label': 'Scientific Trace:',
+        'value_usd_label': 'Estimated Market Value: ${value:,.2f} USD',
+        'value_htg_label': 'Local Economic Value: {value:,.2f} HTG',
+        'solution_label': 'Humanity Solution:',
+        'solution_text': '{resource} development leads to national infrastructure sovereignty.',
+        'strategic_intel': '🌍 Strategic Intelligence',
+        'recent_log': '**Recent Activity Log:**',
+        'download_button': '📊 Download Research History (CSV)',
+        'no_data_info': 'No discoveries recorded yet. Perform a scan to generate data.',
+        'access_warning': 'Please enter your Master Key in the sidebar to begin scanning.',
+        'language_selector': 'Language / Langue / Lang / Lang',
+        'unknown_mineral': 'Unknown Mineral',
+        'unclassified': 'Unclassified'
     },
-    # ... other languages ...
+    'fr': {
+        'app_title': 'MOTEUR INFINI v33.0',
+        'app_subtitle': 'Découverte Universelle & Avancement Humain',
+        'owner_collab': 'Propriétaire: <strong>Gesner Deslandes</strong> &nbsp;|&nbsp; Collaborateurs: Gesner Junior Deslandes, Roosevelt Deslandes, Sebastien Stephane Deslandes & Zendaya Christelle Deslandes',
+        'sidebar_title': '🛡️ Accès Moteur',
+        'sidebar_activation': 'Activation via MonCash: **{moncash}**',
+        'sidebar_key_label': 'Clé:',
+        'sidebar_unlock': 'Déverrouiller',
+        'sidebar_invalid': 'Clé invalide',
+        'sidebar_granted': '✅ ACCÈS AUTORISÉ',
+        'sidebar_logout': 'Déconnexion',
+        'welcome_sound_js': """
+            function playBeep() {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.type = 'sine';
+                oscillator.frequency.value = 880;
+                gainNode.gain.value = 0.3;
+                oscillator.start();
+                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.5);
+                oscillator.stop(audioContext.currentTime + 0.5);
+            }
+            playBeep();
+            const url = new URL(window.location);
+            url.searchParams.delete('play_sound');
+            window.history.replaceState({}, document.title, url.pathname + url.search);
+        """,
+        'main_header': 'MOTEUR INFINI v33.0',
+        'main_subheader': 'Découverte Universelle & Avancement Humain',
+        'scan_subheader': '🔍 Analyse Atomique Universelle',
+        'camera_method_label': 'Comment capturer l\'échantillon:',
+        'camera_option': '📸 Prendre une photo avec l\'appareil (bouton de retournement ci-dessous)',
+        'upload_option': '📁 Télécharger une photo depuis l\'appareil',
+        'camera_instruction': '📸 Ajustez la caméra, puis cliquez sur le bouton ↻ pour passer entre caméra avant et arrière.',
+        'upload_instruction': '📸 Prenez une photo avec l\'appareil photo de votre téléphone et téléchargez-la ici.',
+        'flip_button': 'Retourner la caméra',
+        'capture_button': 'Capturer l\'image',
+        'use_image_button': '✅ Utiliser cette image',
+        'camera_placeholder': 'Le flux vidéo apparaîtra ici après autorisation.',
+        'site_label': 'Nom du site:',
+        'site_placeholder': 'Grand Goâve',
+        'photo_label': 'Analyse d\'échantillon',
+        'notes_label': 'Notes d\'analyse (indices détectés):',
+        'weight_label': 'Masse (kg):',
+        'execute_button': '🚀 EXÉCUTER L\'ANALYSE UNIVERSELLE',
+        'no_photo_error': 'Veuillez d\'abord capturer ou télécharger une image.',
+        'report_title': 'RAPPORT DE DÉCOUVERTE SOUVERAINE',
+        'resource_label': 'Ressource identifiée:',
+        'trace_label': 'Trace scientifique:',
+        'value_usd_label': 'Valeur marchande estimée: ${value:,.2f} USD',
+        'value_htg_label': 'Valeur économique locale: {value:,.2f} HTG',
+        'solution_label': 'Solution humanitaire:',
+        'solution_text': 'Le développement de {resource} conduit à la souveraineté des infrastructures nationales.',
+        'strategic_intel': '🌍 Renseignement Stratégique',
+        'recent_log': '**Journal d\'activité récent:**',
+        'download_button': '📊 Télécharger l\'historique de recherche (CSV)',
+        'no_data_info': 'Aucune découverte enregistrée pour le moment. Effectuez une analyse pour générer des données.',
+        'access_warning': 'Veuillez entrer votre clé principale dans la barre latérale pour commencer l\'analyse.',
+        'language_selector': 'Langue / Language',
+        'unknown_mineral': 'Minéral Inconnu',
+        'unclassified': 'Non Classifié'
+    },
+    'es': {
+        'app_title': 'MOTOR INFINITO v33.0',
+        'app_subtitle': 'Descubrimiento Universal & Avance Humano',
+        'owner_collab': 'Propietario: <strong>Gesner Deslandes</strong> &nbsp;|&nbsp; Colaboradores: Gesner Junior Deslandes, Roosevelt Deslandes, Sebastien Stephane Deslandes & Zendaya Christelle Deslandes',
+        'sidebar_title': '🛡️ Acceso al Motor',
+        'sidebar_activation': 'Activación vía MonCash: **{moncash}**',
+        'sidebar_key_label': 'Clave:',
+        'sidebar_unlock': 'Desbloquear Motor',
+        'sidebar_invalid': 'Clave inválida',
+        'sidebar_granted': '✅ ACCESO CONCEDIDO',
+        'sidebar_logout': 'Cerrar sesión',
+        'welcome_sound_js': """
+            function playBeep() {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.type = 'sine';
+                oscillator.frequency.value = 880;
+                gainNode.gain.value = 0.3;
+                oscillator.start();
+                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.5);
+                oscillator.stop(audioContext.currentTime + 0.5);
+            }
+            playBeep();
+            const url = new URL(window.location);
+            url.searchParams.delete('play_sound');
+            window.history.replaceState({}, document.title, url.pathname + url.search);
+        """,
+        'main_header': 'MOTOR INFINITO v33.0',
+        'main_subheader': 'Descubrimiento Universal & Avance Humano',
+        'scan_subheader': '🔍 Escaneo Atómico Universal',
+        'camera_method_label': 'Cómo capturar la muestra:',
+        'camera_option': '📸 Tomar foto con la cámara (botón de volteo abajo)',
+        'upload_option': '📁 Subir foto desde el dispositivo',
+        'camera_instruction': '📸 Ajuste la cámara, luego haga clic en el botón ↻ para cambiar entre cámara frontal y trasera.',
+        'upload_instruction': '📸 Tome una foto con la cámara de su dispositivo y súbala aquí.',
+        'flip_button': 'Voltear cámara',
+        'capture_button': 'Capturar imagen',
+        'use_image_button': '✅ Usar esta imagen',
+        'camera_placeholder': 'El flujo de la cámara aparecerá aquí después de conceder permiso.',
+        'site_label': 'Nombre del sitio:',
+        'site_placeholder': 'Grand Goâve',
+        'photo_label': 'Análisis de muestra',
+        'notes_label': 'Notas de análisis (pistas detectadas):',
+        'weight_label': 'Masa (kg):',
+        'execute_button': '🚀 EJECUTAR ANÁLISIS UNIVERSAL',
+        'no_photo_error': 'Primero capture o suba una imagen.',
+        'report_title': 'INFORME DE DESCUBRIMIENTO SOBERANO',
+        'resource_label': 'Recurso identificado:',
+        'trace_label': 'Traza científica:',
+        'value_usd_label': 'Valor de mercado estimado: ${value:,.2f} USD',
+        'value_htg_label': 'Valor económico local: {value:,.2f} HTG',
+        'solution_label': 'Solución humanitaria:',
+        'solution_text': 'El desarrollo de {resource} conduce a la soberanía de infraestructura nacional.',
+        'strategic_intel': '🌍 Inteligencia Estratégica',
+        'recent_log': '**Registro de actividad reciente:**',
+        'download_button': '📊 Descargar historial de investigación (CSV)',
+        'no_data_info': 'Aún no se han registrado descubrimientos. Realice un escaneo para generar datos.',
+        'access_warning': 'Por favor ingrese su clave maestra en la barra lateral para comenzar el escaneo.',
+        'language_selector': 'Idioma / Language',
+        'unknown_mineral': 'Mineral Desconocido',
+        'unclassified': 'No Clasificado'
+    },
+    'ht': {
+        'app_title': 'MOTEUR ENFINI v33.0',
+        'app_subtitle': 'Dekouvèt Inivèsèl & Avansman Imèn',
+        'owner_collab': 'Pwopriyetè: <strong>Gesner Deslandes</strong> &nbsp;|&nbsp; Kolaboratè: Gesner Junior Deslandes, Roosevelt Deslandes, Sebastien Stephane Deslandes & Zendaya Christelle Deslandes',
+        'sidebar_title': '🛡️ Aksè Moteur',
+        'sidebar_activation': 'Aktivasyon atravè MonCash: **{moncash}**',
+        'sidebar_key_label': 'Kle:',
+        'sidebar_unlock': 'Deklannche Moteur',
+        'sidebar_invalid': 'Kle pa bon',
+        'sidebar_granted': '✅ AKSÈ AKÒDE',
+        'sidebar_logout': 'Dekonekte',
+        'welcome_sound_js': """
+            function playBeep() {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                oscillator.type = 'sine';
+                oscillator.frequency.value = 880;
+                gainNode.gain.value = 0.3;
+                oscillator.start();
+                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.5);
+                oscillator.stop(audioContext.currentTime + 0.5);
+            }
+            playBeep();
+            const url = new URL(window.location);
+            url.searchParams.delete('play_sound');
+            window.history.replaceState({}, document.title, url.pathname + url.search);
+        """,
+        'main_header': 'MOTEUR ENFINI v33.0',
+        'main_subheader': 'Dekouvèt Inivèsèl & Avansman Imèn',
+        'scan_subheader': '🔍 Analiz Atomik Inivèsèl',
+        'camera_method_label': 'Ki jan pou pran foto echantiyon an:',
+        'camera_option': '📸 Pran foto ak kamera (bouton vire anba a)',
+        'upload_option': '📁 Telechaje foto depi aparèy ou',
+        'camera_instruction': '📸 Ajiste kamera a, epi peze bouton ↻ pou chanje ant kamera devan ak dèyè.',
+        'upload_instruction': '📸 Pran yon foto ak kamera aparèy ou epi telechaje li isit la.',
+        'flip_button': 'Vire Kamera',
+        'capture_button': 'Pran Foto',
+        'use_image_button': '✅ Sèvi ak foto sa a',
+        'camera_placeholder': 'Flò kamera a ap parèt isit la apre w bay pèmisyon.',
+        'site_label': 'Non sit:',
+        'site_placeholder': 'Grand Goâve',
+        'photo_label': 'Analiz echantiyon',
+        'notes_label': 'Nòt analiz (endis detekte):',
+        'weight_label': 'Mas (kg):',
+        'execute_button': '🚀 EKZEKITE ANALIZ INIVÈSÈL',
+        'no_photo_error': 'Tanpri pran yon foto oswa telechaje yon imaj an premye.',
+        'report_title': 'RAPÒ DEKOUVÈT SOUVÈN',
+        'resource_label': 'Rès idantifye:',
+        'trace_label': 'Trase syantifik:',
+        'value_usd_label': 'Valè sou mache estime: ${value:,.2f} USD',
+        'value_htg_label': 'Valè ekonomik lokal: {value:,.2f} HTG',
+        'solution_label': 'Solisyon imanitè:',
+        'solution_text': 'Devlopman {resource} mennen nan souvrenite enfrastrikti nasyonal.',
+        'strategic_intel': '🌍 Entèlijans Estratejik',
+        'recent_log': '**Jounal aktivite resan:**',
+        'download_button': '📊 Telechaje istorik rechèch (CSV)',
+        'no_data_info': 'Pa gen okenn dekouvèt anrejistre ankò. Fè yon eskanè pou jenere done.',
+        'access_warning': 'Tanpri antre kle prensipal ou nan ba a pou kòmanse eskanè.',
+        'language_selector': 'Lang / Language',
+        'unknown_mineral': 'Mineral Enkoni',
+        'unclassified': 'Pa Klase'
+    }
 }
-# For brevity, assume we have the full TRANSLATIONS dict as before.
-# Please copy your existing TRANSLATIONS from the previous code.
 
 def get_text(key, lang=None, **kwargs):
     if lang is None:
@@ -63,13 +314,14 @@ def analyze_resource(text):
                 return m, category
     return "Unknown Mineral", "Unclassified"
 
-# --- 5. CUSTOM CAMERA WIDGET (with reload to pass image) ---
+# --- 5. CUSTOM CAMERA WIDGET (using st.components.v1.html + callback) ---
 def custom_camera_widget():
-    """Display camera with flip button; capture reloads page with image data in URL."""
-    # Generate a unique id for this instance
+    """Embed camera with flip button and send captured image via st.rerun with query param."""
+    # Generate unique id
     widget_id = f"cam_{uuid.uuid4().hex[:8]}"
 
-    html_code = f"""
+    # HTML/JS with flip and capture, then reload with image data in URL
+    html = f"""
     <div id="{widget_id}_container" style="text-align: center;">
         <video id="{widget_id}_video" autoplay playsinline style="width: 100%; max-width: 500px; border: 2px solid #00209F; border-radius: 10px; background: #000;"></video>
         <div style="margin-top: 10px;">
@@ -109,18 +361,16 @@ def custom_camera_widget():
                     }})
                     .catch(err => {{
                         console.error("Camera error:", err);
-                        video.style.background = "#ccc";
                         video.style.display = "none";
                         document.getElementById("{widget_id}_container").innerHTML += "<p style='color:red;'>Cannot access camera. Please check permissions.</p>";
                     }});
             }}
 
-            // List cameras
             navigator.mediaDevices.enumerateDevices()
                 .then(devicesList => {{
                     devices = devicesList.filter(device => device.kind === 'videoinput');
                     if (devices.length > 0) {{
-                        // Try to select rear camera automatically
+                        // Try to select rear camera
                         const rearIndex = devices.findIndex(device =>
                             device.label.toLowerCase().includes('back') ||
                             device.label.toLowerCase().includes('rear') ||
@@ -138,7 +388,6 @@ def custom_camera_widget():
                     startVideo(null);
                 }});
 
-            // Flip button
             flipBtn.addEventListener('click', () => {{
                 if (devices.length === 0) {{
                     alert("No other cameras found.");
@@ -148,7 +397,6 @@ def custom_camera_widget():
                 startVideo(devices[currentDeviceIndex].deviceId);
             }});
 
-            // Capture and reload with image data in URL
             captureBtn.addEventListener('click', () => {{
                 if (video.videoWidth === 0) {{
                     alert("No video stream. Please ensure camera is working.");
@@ -159,13 +407,13 @@ def custom_camera_widget():
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                 const dataURL = canvas.toDataURL('image/jpeg', 0.8);
-                // Reload the page with the image data as a query parameter
+                // Reload the page with the image data in the query string
                 window.location.href = window.location.pathname + "?captured_image=" + encodeURIComponent(dataURL);
             }});
         }})();
     </script>
     """
-    st.markdown(html_code, unsafe_allow_html=True)
+    st.components.v1.html(html, height=400)
 
 # --- 6. UI CONFIG ---
 st.set_page_config(page_title="Infinity Engine v33.0", layout="centered")
@@ -238,11 +486,10 @@ if st.session_state.authenticated and st.query_params.get("play_sound") == "true
     st.markdown(f"<script>{get_text('welcome_sound_js')}</script>", unsafe_allow_html=True)
 
 # --- 9. CAPTURED IMAGE FROM QUERY PARAM ---
-# If the page was reloaded with a captured_image param, store it and remove the param
 if "captured_image" in st.query_params:
     img_data = st.query_params["captured_image"]
     st.session_state.captured_image = img_data
-    # Remove the param to avoid reprocessing on next rerun
+    # Remove the param to avoid reprocessing
     new_params = {k: v for k, v in st.query_params.items() if k != "captured_image"}
     st.query_params.clear()
     st.query_params.update(new_params)
@@ -278,7 +525,7 @@ if st.session_state.authenticated:
         st.markdown(f"<p style='font-size:0.9rem; color:#555;'>{get_text('upload_instruction')}</p>", unsafe_allow_html=True)
         uploaded = st.file_uploader(get_text('photo_label'), type=['jpg', 'jpeg', 'png'])
         if uploaded:
-            # Convert uploaded file to base64 for consistency
+            # Convert to base64 for consistency
             bytes_data = uploaded.read()
             b64 = base64.b64encode(bytes_data).decode()
             st.session_state.captured_image = f"data:image/{uploaded.type.split('/')[-1]};base64,{b64}"
