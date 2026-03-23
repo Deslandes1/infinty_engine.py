@@ -38,6 +38,35 @@ def analyze_resource(text):
 # --- 4. UI CONFIG ---
 st.set_page_config(page_title="Infinity Engine v33.0", layout="centered")
 
+# Owner & Collaborators
+st.markdown("""
+<div style="text-align: center; font-size: 0.9rem; color: #444; margin-bottom: 5px;">
+    Owner: <strong>Gesner Deslandes</strong> &nbsp;|&nbsp;
+    Collaborators: Gesner Junior Deslandes, Roosevelt Deslandes, Sebastien Stephane Deslandes & Zendaya Christelle Deslandes
+</div>
+""", unsafe_allow_html=True)
+
+# Haitian Flag (blue & red with coat of arms)
+st.markdown("""
+<div style="display: flex; justify-content: center; margin: 15px 0;">
+    <svg width="240" height="144" viewBox="0 0 720 432" xmlns="http://www.w3.org/2000/svg">
+        <rect width="720" height="216" fill="#00209F" />
+        <rect y="216" width="720" height="216" fill="#D21034" />
+        <g transform="translate(360,216) scale(0.12)">
+            <path d="M0,0 L0,0" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+            <polygon points="0,-120 60,-40 20,-40 20,80 -20,80 -20,-40 -60,-40 0,-120" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+            <circle cx="0" cy="-20" r="20" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+            <rect x="-30" y="40" width="60" height="40" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+            <rect x="-40" y="80" width="80" height="30" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+            <polygon points="0,110 -20,140 20,140 0,110" fill="#FFFFFF" stroke="#000000" stroke-width="2" />
+            <circle cx="0" cy="-50" r="6" fill="#000000" />
+            <path d="M-15,-30 L15,-30" stroke="#000000" stroke-width="2" />
+        </g>
+    </svg>
+</div>
+""", unsafe_allow_html=True)
+
+# Custom CSS
 st.markdown("""
     <style>
     .main-header { background: linear-gradient(135deg, #00209F 0%, #D21034 100%); color: white; padding: 25px; border-radius: 15px; text-align: center; border-bottom: 5px solid #FFD700; margin-bottom: 20px; }
@@ -54,6 +83,8 @@ with st.sidebar:
         if st.button("Unlock Engine"):
             if user_key == MASTER_KEY:
                 st.session_state.authenticated = True
+                # Set query param to trigger welcome sound on next load
+                st.query_params["play_sound"] = "true"
                 st.rerun()
             else:
                 st.error("Invalid Key")
@@ -63,7 +94,33 @@ with st.sidebar:
             st.session_state.authenticated = False
             st.rerun()
 
-# --- 6. MAIN INTERFACE ---
+# --- 6. WELCOME SOUND (plays once after authentication) ---
+if st.session_state.authenticated and st.query_params.get("play_sound") == "true":
+    # Inject JavaScript to play a short beep and remove the query param
+    st.markdown("""
+    <script>
+        function playBeep() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.type = 'sine';
+            oscillator.frequency.value = 880;  // high pitch welcoming tone
+            gainNode.gain.value = 0.3;
+            oscillator.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.5);
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
+        playBeep();
+        // Remove the query parameter without reloading
+        const url = new URL(window.location);
+        url.searchParams.delete('play_sound');
+        window.history.replaceState({}, document.title, url.pathname + url.search);
+    </script>
+    """, unsafe_allow_html=True)
+
+# --- 7. MAIN INTERFACE ---
 st.markdown('<div class="main-header"><h1>INFINITY ENGINE v33.0</h1><p>Universal Discovery & Humanity Advancement</p></div>', unsafe_allow_html=True)
 
 if st.session_state.authenticated:
