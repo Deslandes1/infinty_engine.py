@@ -3,6 +3,10 @@ import datetime
 import uuid
 import pandas as pd
 import base64
+import cv2
+import av
+from streamlit_webrtc import webrtc_streamer, VideoProcessorBase, WebRtcMode
+import numpy as np
 
 # --- GLOBAL DATABASE ---
 RESOURCE_CLASSES = {
@@ -32,7 +36,7 @@ if 'captured_image' not in st.session_state:
 if 'camera_method' not in st.session_state:
     st.session_state.camera_method = 'camera'
 
-# --- TRANSLATIONS (full, but for brevity only English shown; include your full translations) ---
+# --- TRANSLATIONS (full, only English shown; include your full translations) ---
 TRANSLATIONS = {
     'en': {
         'app_title': 'INFINITY ENGINE v33.0',
@@ -98,7 +102,7 @@ TRANSLATIONS = {
         'unknown_mineral': 'Unknown Mineral',
         'unclassified': 'Unclassified'
     },
-    # Include French, Spanish, Haitian Creole translations as before.
+    # Add French, Spanish, Haitian Creole translations as before.
 }
 
 def get_text(key, lang=None, **kwargs):
@@ -118,110 +122,43 @@ def analyze_resource(text):
                 return m, category
     return "Unknown Mineral", "Unclassified"
 
-# --- CUSTOM CAMERA WIDGET WITH REVERSE BUTTON ---
-def custom_camera_widget():
-    """Embed a camera with a visible Reverse Camera button."""
-    widget_id = f"cam_{uuid.uuid4().hex[:8]}"
-    reverse_label = get_text('reverse_button')
-    capture_label = get_text('capture_button')
-    html = f"""
-    <div id="{widget_id}_container" style="text-align: center;">
-        <video id="{widget_id}_video" autoplay playsinline style="width: 100%; max-width: 500px; border: 2px solid #00209F; border-radius: 10px; background: #000;"></video>
-        <div style="margin-top: 10px;">
-            <button id="{widget_id}_flip" style="padding: 8px 16px; background-color: #00209F; color: white; border: none; border-radius: 5px; cursor: pointer; margin-right: 10px;">↻ {reverse_label}</button>
-            <button id="{widget_id}_capture" style="padding: 8px 16px; background-color: #D21034; color: white; border: none; border-radius: 5px; cursor: pointer;">📷 {capture_label}</button>
-        </div>
-        <canvas id="{widget_id}_canvas" style="display: none;"></canvas>
-    </div>
-    <script>
-        (function() {{
-            const video = document.getElementById("{widget_id}_video");
-            const flipBtn = document.getElementById("{widget_id}_flip");
-            const captureBtn = document.getElementById("{widget_id}_capture");
-            const canvas = document.getElementById("{widget_id}_canvas");
+# --- Video processor for capturing frames ---
+class VideoProcessor(VideoProcessorBase):
+    def __init__(self):
+        self.image = None
 
-            let currentStream = null;
-            let devices = [];
-            let currentDeviceIndex = 0;
+    def recv(self, frame):
+        img = frame.to_ndarray(format="bgr24")
+        self.image = img
+        return frame
 
-            function stopStream() {{
-                if (currentStream) {{
-                    currentStream.getTracks().forEach(track => track.stop());
-                    currentStream = null;
-                }}
-            }}
+# --- Camera widget using streamlit-webrtc ---
+def camera_widget():
+    # Use a unique key to prevent conflicts
+    webrtc_ctx = webrtc_streamer(
+        key="sample-camera",
+        mode=WebRtcMode.SENDRECV,
+        video_processor_factory=VideoProcessor,
+        media_stream_constraints={"video": True, "audio": False},
+        async_processing=True,
+    )
 
-            function startVideo(deviceId) {{
-                stopStream();
-                const constraints = {{
-                    video: deviceId ? {{ deviceId: {{ exact: deviceId }} }} : true
-                }};
-                navigator.mediaDevices.getUserMedia(constraints)
-                    .then(stream => {{
-                        currentStream = stream;
-                        video.srcObject = stream;
-                        video.play();
-                    }})
-                    .catch(err => {{
-                        console.error("Camera error:", err);
-                        video.style.display = "none";
-                        const errMsg = document.createElement("p");
-                        errMsg.style.color = "red";
-                        errMsg.innerText = "Cannot access camera. Please check permissions.";
-                        document.getElementById("{widget_id}_container").appendChild(errMsg);
-                    }});
-            }}
-
-            // Get list of cameras
-            navigator.mediaDevices.enumerateDevices()
-                .then(devicesList => {{
-                    devices = devicesList.filter(device => device.kind === 'videoinput');
-                    if (devices.length > 0) {{
-                        // Try to auto-select rear camera if available
-                        const rearIndex = devices.findIndex(device =>
-                            device.label.toLowerCase().includes('back') ||
-                            device.label.toLowerCase().includes('rear') ||
-                            device.label.toLowerCase().includes('environment')
-                        );
-                        if (rearIndex !== -1) currentDeviceIndex = rearIndex;
-                        else currentDeviceIndex = 0;
-                        startVideo(devices[currentDeviceIndex].deviceId);
-                    }} else {{
-                        startVideo(null);
-                    }}
-                }})
-                .catch(err => {{
-                    console.error("Enumerate error:", err);
-                    startVideo(null);
-                }});
-
-            // Reverse button: cycle through available cameras
-            flipBtn.addEventListener('click', () => {{
-                if (devices.length === 0) {{
-                    alert("No other cameras found.");
-                    return;
-                }}
-                currentDeviceIndex = (currentDeviceIndex + 1) % devices.length;
-                startVideo(devices[currentDeviceIndex].deviceId);
-            }});
-
-            // Capture button: capture image and reload page with image data
-            captureBtn.addEventListener('click', () => {{
-                if (video.videoWidth === 0) {{
-                    alert("No video stream. Please ensure camera is working.");
-                    return;
-                }}
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                const dataURL = canvas.toDataURL('image/jpeg', 0.8);
-                window.location.href = window.location.pathname + "?captured_image=" + encodeURIComponent(dataURL);
-            }});
-        }})();
-    </script>
-    """
-    st.components.v1.html(html, height=400)
+    if webrtc_ctx.video_processor:
+        if st.button(get_text('capture_button'), key="capture_btn"):
+            img = webrtc_ctx.video_processor.image
+            if img is not None:
+                # Convert BGR to RGB for display
+                img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                # Convert to base64 to store in session state
+                success, buffer = cv2.imencode('.jpg', img)
+                if success:
+                    img_base64 = base64.b64encode(buffer).decode()
+                    st.session_state.captured_image = f"data:image/jpeg;base64,{img_base64}"
+                    st.rerun()
+            else:
+                st.error("No image captured. Please ensure the camera is working.")
+    else:
+        st.info(get_text('camera_placeholder'))
 
 # --- UI CONFIG ---
 st.set_page_config(page_title="Infinity Engine v33.0", layout="centered")
@@ -293,15 +230,6 @@ with st.sidebar:
 if st.session_state.authenticated and st.query_params.get("play_sound") == "true":
     st.markdown(f"<script>{get_text('welcome_sound_js')}</script>", unsafe_allow_html=True)
 
-# --- CAPTURED IMAGE FROM QUERY PARAM ---
-if "captured_image" in st.query_params:
-    img_data = st.query_params["captured_image"]
-    st.session_state.captured_image = img_data
-    new_params = {k: v for k, v in st.query_params.items() if k != "captured_image"}
-    st.query_params.clear()
-    st.query_params.update(new_params)
-    st.rerun()
-
 # --- MAIN INTERFACE ---
 st.markdown(f'<div class="main-header"><h1>{get_text("main_header")}</h1><p>{get_text("main_subheader")}</p></div>', unsafe_allow_html=True)
 
@@ -318,14 +246,12 @@ if st.session_state.authenticated:
 
     if method == 'camera':
         st.markdown(f"<p style='font-size:0.9rem; color:#555;'>{get_text('camera_instruction')}</p>", unsafe_allow_html=True)
-        custom_camera_widget()
+        camera_widget()
         if st.session_state.captured_image:
             st.image(st.session_state.captured_image, caption="Captured image", width=200)
             if st.button("Clear image"):
                 st.session_state.captured_image = None
                 st.rerun()
-        else:
-            st.info(get_text('camera_placeholder'))
     else:
         st.markdown(f"<p style='font-size:0.9rem; color:#555;'>{get_text('upload_instruction')}</p>", unsafe_allow_html=True)
         uploaded = st.file_uploader(get_text('photo_label'), type=['jpg', 'jpeg', 'png'])
@@ -382,7 +308,7 @@ if st.session_state.authenticated:
     if st.session_state.discovery_log:
         st.markdown(get_text('recent_log'))
         df = pd.DataFrame(st.session_state.discovery_log)
-        st.dataframe(df.tail(5), use_container_width=True)
+        st.dataframe(df.tail(5), width='stretch')
         csv = df.to_csv(index=False).encode('utf-8')
         st.download_button(
             label=get_text('download_button'),
