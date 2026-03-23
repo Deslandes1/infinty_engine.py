@@ -3,6 +3,7 @@ import datetime
 import uuid
 import json
 import pandas as pd
+import base64
 from io import BytesIO
 
 # --- 1. GLOBAL RESOURCE MASTER DATABASE ---
@@ -27,7 +28,11 @@ if 'authenticated' not in st.session_state:
 if 'discovery_log' not in st.session_state:
     st.session_state.discovery_log = []
 if 'language' not in st.session_state:
-    st.session_state.language = 'en'
+    st.session_state.language = 'en'  # default English
+if 'captured_image' not in st.session_state:
+    st.session_state.captured_image = None
+if 'camera_method' not in st.session_state:
+    st.session_state.camera_method = 'camera'  # 'camera' or 'upload'
 
 # --- 3. TRANSLATIONS ---
 TRANSLATIONS = {
@@ -64,14 +69,18 @@ TRANSLATIONS = {
         'main_header': 'INFINITY ENGINE v33.0',
         'main_subheader': 'Universal Discovery & Humanity Advancement',
         'scan_subheader': '🔍 Universal Atomic Scan',
-        'camera_instruction': '📸 Point the camera at the soil. Use the flip button (↻) in the camera window to switch to the rear camera.',
-        'photo_label': 'Sample Analysis (Camera)',
+        'camera_method_label': 'How to capture the sample:',
+        'camera_option': '📸 Take photo with camera (flip to rear camera using the ↻ button)',
+        'upload_option': '📁 Upload photo from device (recommended for rear camera)',
+        'camera_instruction': '🔍 Point your camera at the soil, then tap the flip button (↻) to switch to rear camera.',
+        'upload_instruction': '📸 Take a photo with your device\'s camera (rear camera) and upload it here.',
         'site_label': 'Site Name:',
         'site_placeholder': 'Grand Goâve',
+        'photo_label': 'Sample Analysis',
         'notes_label': 'Analysis Notes (Detected Clues):',
         'weight_label': 'Mass (kg):',
         'execute_button': '🚀 EXECUTE UNIVERSAL ANALYSIS',
-        'no_photo_error': 'Please capture a sample image first.',
+        'no_photo_error': 'Please capture or upload an image first.',
         'report_title': 'SOVEREIGN DISCOVERY REPORT',
         'resource_label': 'Resource Identified:',
         'trace_label': 'Scientific Trace:',
@@ -121,14 +130,18 @@ TRANSLATIONS = {
         'main_header': 'MOTEUR INFINI v33.0',
         'main_subheader': 'Découverte Universelle & Avancement Humain',
         'scan_subheader': '🔍 Analyse Atomique Universelle',
-        'camera_instruction': '📸 Pointez l’appareil vers le sol. Utilisez le bouton de retournement (↻) dans la fenêtre de la caméra pour passer à la caméra arrière.',
-        'photo_label': 'Analyse d\'échantillon (Caméra)',
+        'camera_method_label': 'Comment capturer l\'échantillon:',
+        'camera_option': '📸 Prendre une photo avec l\'appareil (utilisez le bouton ↻ pour passer à la caméra arrière)',
+        'upload_option': '📁 Télécharger une photo depuis l\'appareil (recommandé pour la caméra arrière)',
+        'camera_instruction': '🔍 Pointez votre appareil vers le sol, puis appuyez sur le bouton de retournement (↻) pour passer à la caméra arrière.',
+        'upload_instruction': '📸 Prenez une photo avec l\'appareil photo de votre téléphone (caméra arrière) et téléchargez-la ici.',
         'site_label': 'Nom du site:',
         'site_placeholder': 'Grand Goâve',
+        'photo_label': 'Analyse d\'échantillon',
         'notes_label': 'Notes d\'analyse (indices détectés):',
         'weight_label': 'Masse (kg):',
         'execute_button': '🚀 EXÉCUTER L\'ANALYSE UNIVERSELLE',
-        'no_photo_error': 'Veuillez d\'abord capturer une image de l\'échantillon.',
+        'no_photo_error': 'Veuillez d\'abord capturer ou télécharger une image.',
         'report_title': 'RAPPORT DE DÉCOUVERTE SOUVERAINE',
         'resource_label': 'Ressource identifiée:',
         'trace_label': 'Trace scientifique:',
@@ -178,14 +191,18 @@ TRANSLATIONS = {
         'main_header': 'MOTOR INFINITO v33.0',
         'main_subheader': 'Descubrimiento Universal & Avance Humano',
         'scan_subheader': '🔍 Escaneo Atómico Universal',
-        'camera_instruction': '📸 Apunte la cámara hacia el suelo. Use el botón de volteo (↻) en la ventana de la cámara para cambiar a la cámara trasera.',
-        'photo_label': 'Análisis de muestra (Cámara)',
+        'camera_method_label': 'Cómo capturar la muestra:',
+        'camera_option': '📸 Tomar foto con la cámara (use el botón ↻ para cambiar a la cámara trasera)',
+        'upload_option': '📁 Subir foto desde el dispositivo (recomendado para cámara trasera)',
+        'camera_instruction': '🔍 Apunte su cámara al suelo, luego toque el botón de volteo (↻) para cambiar a la cámara trasera.',
+        'upload_instruction': '📸 Tome una foto con la cámara de su dispositivo (cámara trasera) y súbala aquí.',
         'site_label': 'Nombre del sitio:',
         'site_placeholder': 'Grand Goâve',
+        'photo_label': 'Análisis de muestra',
         'notes_label': 'Notas de análisis (pistas detectadas):',
         'weight_label': 'Masa (kg):',
         'execute_button': '🚀 EJECUTAR ANÁLISIS UNIVERSAL',
-        'no_photo_error': 'Primero capture una imagen de la muestra.',
+        'no_photo_error': 'Primero capture o suba una imagen.',
         'report_title': 'INFORME DE DESCUBRIMIENTO SOBERANO',
         'resource_label': 'Recurso identificado:',
         'trace_label': 'Traza científica:',
@@ -235,14 +252,18 @@ TRANSLATIONS = {
         'main_header': 'MOTEUR ENFINI v33.0',
         'main_subheader': 'Dekouvèt Inivèsèl & Avansman Imèn',
         'scan_subheader': '🔍 Analiz Atomik Inivèsèl',
-        'camera_instruction': '📸 Montre kamera ou sou tè a. Sèvi ak bouton vire (↻) nan fenèt kamera a pou chanje nan kamera dèyè.',
-        'photo_label': 'Analiz echantiyon (Kamera)',
+        'camera_method_label': 'Ki jan pou pran foto echantiyon an:',
+        'camera_option': '📸 Pran foto ak kamera (sèvi ak bouton ↻ pou chanje nan kamera dèyè)',
+        'upload_option': '📁 Telechaje foto depi aparèy ou (rekòmande pou kamera dèyè)',
+        'camera_instruction': '🔍 Montre kamera ou sou tè a, epi peze bouton vire (↻) pou chanje nan kamera dèyè.',
+        'upload_instruction': '📸 Pran yon foto ak kamera aparèy ou (kamera dèyè) epi telechaje li isit la.',
         'site_label': 'Non sit:',
         'site_placeholder': 'Grand Goâve',
+        'photo_label': 'Analiz echantiyon',
         'notes_label': 'Nòt analiz (endis detekte):',
         'weight_label': 'Mas (kg):',
         'execute_button': '🚀 EKZEKITE ANALIZ INIVÈSÈL',
-        'no_photo_error': 'Tanpri pran yon foto echantiyon an premye.',
+        'no_photo_error': 'Tanpri pran yon foto oswa telechaje yon imaj an premye.',
         'report_title': 'RAPÒ DEKOUVÈT SOUVÈN',
         'resource_label': 'Rès idantifye:',
         'trace_label': 'Trase syantifik:',
@@ -281,7 +302,7 @@ def analyze_resource(text):
 # --- 5. UI CONFIG ---
 st.set_page_config(page_title="Infinity Engine v33.0", layout="centered")
 
-# Language selector & owner line
+# Language selector at the very top
 col1, col2 = st.columns([3, 1])
 with col1:
     st.markdown(get_text('owner_collab'), unsafe_allow_html=True)
@@ -322,7 +343,6 @@ st.markdown("""
     <style>
     .main-header { background: linear-gradient(135deg, #00209F 0%, #D21034 100%); color: white; padding: 25px; border-radius: 15px; text-align: center; border-bottom: 5px solid #FFD700; margin-bottom: 20px; }
     .report-card { border: 2px solid #00209F; padding: 20px; border-radius: 10px; background: #fff; color: #000; margin-top: 20px; box-shadow: 2px 2px 10px rgba(0,0,0,0.1); }
-    .camera-instruction { background-color: #f0f2f6; padding: 10px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #D21034; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -355,9 +375,25 @@ st.markdown(f'<div class="main-header"><h1>{get_text("main_header")}</h1><p>{get
 if st.session_state.authenticated:
     st.subheader(get_text('scan_subheader'))
 
-    # Camera instruction box
-    st.markdown(f'<div class="camera-instruction">📸 {get_text("camera_instruction")}</div>', unsafe_allow_html=True)
-    photo = st.camera_input(get_text('photo_label'))
+    # Camera method selection
+    method = st.radio(
+        get_text('camera_method_label'),
+        options=['camera', 'upload'],
+        format_func=lambda x: get_text('camera_option') if x == 'camera' else get_text('upload_option'),
+        horizontal=True
+    )
+    st.session_state.camera_method = method
+
+    if method == 'camera':
+        st.markdown(f"<p style='font-size:0.9rem; color:#555;'>{get_text('camera_instruction')}</p>", unsafe_allow_html=True)
+        photo = st.camera_input(get_text('photo_label'))
+        if photo:
+            st.session_state.captured_image = photo
+    else:
+        st.markdown(f"<p style='font-size:0.9rem; color:#555;'>{get_text('upload_instruction')}</p>", unsafe_allow_html=True)
+        uploaded = st.file_uploader(get_text('photo_label'), type=['jpg', 'jpeg', 'png'])
+        if uploaded:
+            st.session_state.captured_image = uploaded
 
     site = st.text_input(get_text('site_label'), get_text('site_placeholder'))
     notes = st.text_area(get_text('notes_label'))
@@ -365,7 +401,7 @@ if st.session_state.authenticated:
 
     # --- Execute ---
     if st.button(get_text('execute_button')):
-        if photo:
+        if st.session_state.captured_image:
             res_name, res_cat = analyze_resource(notes)
             price = MARKET_HUB.get(res_name, 0)
             usd_val = price * weight
